@@ -1,0 +1,7 @@
+package org.example.org.jetbrains.objcdiff
+
+data class ObjCProperty(
+    val name: String,
+    val type: ObjCType,
+    val nullable: Boolean = false
+) : ObjCMember()
