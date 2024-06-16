@@ -1,10 +1,10 @@
 package org.example.org.jetbrains.objcdiff.parsers
 
 /**
- * `A : B` > `B`
- * `A : B<C>` > `B<C>`
- * `A : B<C *>` > `B<C>`
- * `A` > `null`
+ * - `A : B` > `B`
+ * - `A : B<C>` > `B<C>`
+ * - `A : B<C *>` > `B<C>`
+ * - `A` > `null`
  */
 fun String.parseSuperType(): String? {
     if (this.contains("@")) throw IllegalArgumentException("`@` prefix must be removed")

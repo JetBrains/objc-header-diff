@@ -3,7 +3,11 @@ package org.example.org.jetbrains.objcdiff.reports
 import org.example.org.jetbrains.objcdiff.utils.storeFile
 
 /**
- * Result report consists of 3 files
+ * Parses headers and generates 4 files:
+ * - `diff.md` with headers diff
+ * - `diff.json` simplified diff report
+ * - `actual.h.md` info and classes graph of `actual.h`
+ * - `expected.h.md` info and classes graph of `expected.h`
  */
 fun buildReport() {
     val actualFileName = "actual.h"
