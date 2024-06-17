@@ -2,7 +2,7 @@ package org.example.org.jetbrains.objcdiff.reports
 
 import org.example.org.jetbrains.objcdiff.ObjCClassOrInterface
 import org.example.org.jetbrains.objcdiff.parsers.parseMembers
-import org.example.org.jetbrains.objcdiff.parsers.parseSuperType
+import org.example.org.jetbrains.objcdiff.parsers.parseSymbolTitle
 import org.example.org.jetbrains.objcdiff.parsers.parseType
 import org.example.org.jetbrains.objcdiff.utils.loadResourceFile
 
@@ -70,14 +70,13 @@ fun Sequence<String>.takeGroupWithType(
         when {
             str.matches(start) -> {
 
-                val raw = str.replace("@$symbolType", "").trim()
-                val rawMain = raw.substringBefore(":")
-                if (raw.contains(":")) rawSuperType = raw.parseSuperType()
+                val symbolTitle = str.parseSymbolTitle(symbolType)
 
                 take = true
                 members.clear()
-                key = rawMain
-                rawMainType = rawMain
+                key = symbolTitle.rawMain
+                rawMainType = symbolTitle.rawMain
+                rawSuperType = symbolTitle.rawSuper
             }
 
             str.matches(end) && take -> {
