@@ -43,3 +43,5 @@ bin/
 
 src/main/resources/actual.h
 src/main/resources/expected.h
+
+local.properties

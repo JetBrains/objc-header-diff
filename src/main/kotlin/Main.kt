@@ -1,7 +1,10 @@
 package org.example
 
+import org.example.org.jetbrains.objcdiff.reports.ReportGenContext
 import org.example.org.jetbrains.objcdiff.reports.buildReport
 
 fun main() {
-    buildReport()
+    with(ReportGenContext(skipRefType = true)) {
+        buildReport()
+    }
 }

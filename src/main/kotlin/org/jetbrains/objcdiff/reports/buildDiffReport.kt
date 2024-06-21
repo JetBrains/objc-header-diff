@@ -2,8 +2,8 @@ package org.example.org.jetbrains.objcdiff.reports
 
 import org.example.org.jetbrains.objcdiff.ObjCClassOrInterface
 
+context(ReportGenContext)
 fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): DiffReport {
-
 
     val expected = (expectedReport.protocols + expectedReport.interfaces).associateBy { it.key }.toMutableMap()
     val actual = (actualReport.protocols + actualReport.interfaces).associateBy { it.key }.toMutableMap()

@@ -13,6 +13,7 @@ val startInterface = "@interface.*".toRegex()
 val startProtocol = "@protocol.*".toRegex()
 val end = "@end".toRegex()
 
+context(ReportGenContext)
 fun buildHeaderReport(fileName: String): HeaderReport {
     val sequence = loadResourceFile(fileName)
         .lineSequence()

@@ -2,9 +2,11 @@ package org.example.org.jetbrains.objcdiff.reports
 
 import org.example.org.jetbrains.objcdiff.*
 import kotlin.reflect.KTypeProjection
+import kotlin.time.Duration
 
 data class NamespacePrefix(val namespace: String, val prefix: String)
 
+context(ReportGenContext)
 fun List<ObjCClassOrInterface>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emptyList()): String {
 
     val sb = StringBuilder()
@@ -72,6 +74,7 @@ object Colors {
     const val OK = "#37a600"
 }
 
+context(ReportGenContext)
 private fun List<ObjCClassOrInterface>.buildClasses(
     sb: StringBuilder,
     references: MutableSet<String>,
@@ -79,8 +82,6 @@ private fun List<ObjCClassOrInterface>.buildClasses(
     removePrefix: List<String> = emptyList()
 ) {
     val namespaceSb = StringBuilder()
-
-    //if (namespace.isNotEmpty()) namespaceSb.appendLine("namespace $namespace {")
 
     fun withoutPrefix(name: String): String {
 
@@ -108,7 +109,11 @@ private fun List<ObjCClassOrInterface>.buildClasses(
             ObjCReferenceType.GENERIC -> "generic"
         }
 
-        references.add("$from --> $targetType : $refName")
+        if (skipRefType) {
+            references.add("$from --> $targetType")
+        } else {
+            references.add("$from --> $targetType : $refName")
+        }
 
         to.generics.forEach { generic ->
             referenceType(from, generic, ObjCReferenceType.GENERIC)
@@ -132,7 +137,6 @@ private fun List<ObjCClassOrInterface>.buildClasses(
                             ", "
                         ) { withoutPrefix(it.type.name) }
                     })")
-
 
 
                 } else if (member is ObjCProperty) {

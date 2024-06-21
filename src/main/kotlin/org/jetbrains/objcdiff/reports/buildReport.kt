@@ -9,6 +9,7 @@ import org.example.org.jetbrains.objcdiff.utils.storeFile
  * - `actual.h.md` info and classes graph of `actual.h`
  * - `expected.h.md` info and classes graph of `expected.h`
  */
+context(ReportGenContext)
 fun buildReport() {
     val actualFileName = "actual.h"
     val expectedFileName = "expected.h"
@@ -23,3 +24,8 @@ fun buildReport() {
     storeFile("diff.md", diffReport.toMd())
     storeFile("diff.json", diffReport.toJson())
 }
+
+class ReportGenContext(
+    val skipRefType: Boolean = false,
+    val filterClass: String? = null
+)
