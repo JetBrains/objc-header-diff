@@ -28,7 +28,7 @@ fun String.parseType(classOrInterface: String? = null): ObjCType {
     }
 
     return buildType(
-        key = raw,
+        key = name,
         name = name,
         generics = generics,
         nullable = nullable,

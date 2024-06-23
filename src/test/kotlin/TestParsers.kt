@@ -95,9 +95,9 @@ class TestParsers {
             val header = "@interface A<T>: B<V>".parseObjCTypeHeader()
             val type = parseType(header)
 
-            assertEquals("A<T>", type.key)
+            assertEquals("A", type.key)
             assertEquals("T", type.generics.first().key)
-            assertEquals("B<V>", type.superType?.key)
+            assertEquals("B", type.superType?.key)
             assertEquals("V", type.superType?.generics?.first()?.key)
         }
 

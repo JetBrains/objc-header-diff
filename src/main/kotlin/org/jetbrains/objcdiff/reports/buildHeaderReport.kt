@@ -104,7 +104,7 @@ fun parseType(
     val mainType = header.rawMain.parseType(header.protocolOrInterface)
     val superType = header.rawSuper?.parseType(header.protocolOrInterface)
     return buildType(
-        key = header.key,
+        key = mainType.key,
         name = mainType.name,
         generics = mainType.generics,
         nullable = mainType.nullable,
