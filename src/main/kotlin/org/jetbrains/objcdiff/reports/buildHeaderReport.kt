@@ -1,5 +1,6 @@
 package org.example.org.jetbrains.objcdiff.reports
 
+import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCType
 import org.example.org.jetbrains.objcdiff.parsers.ObjCTypeHeader
 import org.example.org.jetbrains.objcdiff.parsers.parseMembers
@@ -17,7 +18,7 @@ val startInterface = "$interfacePrefix.*".toRegex()
 val startProtocol = "$protocolPrefix.*".toRegex()
 val end = "@end".toRegex()
 
-context(ReportGenContext)
+context(DiffContext)
 fun buildHeaderReport(fileName: String): HeaderReport {
     val sequence = loadResourceFile(fileName)
         .lineSequence()
@@ -31,6 +32,7 @@ fun buildHeaderReport(fileName: String): HeaderReport {
     )
 }
 
+context(DiffContext)
 fun String.collectClassesAndProtocols(): List<ObjCType> {
     return lineSequence().toObjCTypes().toList()
 }
@@ -62,10 +64,12 @@ fun Sequence<String>.skipForwardProtocols(): Sequence<String> = sequence {
     }
 }
 
+context(DiffContext)
 fun String.toObjCTypes(): Sequence<ObjCType> {
     return lineSequence().toObjCTypes()
 }
 
+context(DiffContext)
 fun Sequence<String>.toObjCTypes() = sequence {
     var take = false
     var header: ObjCTypeHeader? = null
@@ -92,19 +96,20 @@ fun Sequence<String>.toObjCTypes() = sequence {
     }
 }
 
+context(DiffContext)
 fun parseType(
     header: ObjCTypeHeader,
     members: List<String> = emptyList()
 ): ObjCType {
     val mainType = header.rawMain.parseType()
     val superType = header.rawSuper?.parseType()
-    return ObjCType(
-        header.key,
-        mainType.name,
-        mainType.generics,
-        mainType.nullable,
-        header.protocolOrInterface,
-        members.parseMembers(),
-        superType
+    return buildType(
+        key = header.key,
+        name = mainType.name,
+        generics = mainType.generics,
+        nullable = mainType.nullable,
+        classOrInterface = header.protocolOrInterface,
+        members = members.parseMembers(),
+        superType = superType
     )
 }

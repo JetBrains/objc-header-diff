@@ -1,3 +1,4 @@
+import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCMethod
 import org.example.org.jetbrains.objcdiff.ObjCProperty
 import org.example.org.jetbrains.objcdiff.parsers.*
@@ -27,22 +28,25 @@ class TestParsers {
 
     @Test
     fun `test parseMethod`() {
+        with(DiffContext()) {
+            val decodeInt = "(int32_t)decodeInt".parseMethod()
 
-        val decodeInt = "(int32_t)decodeInt".parseMethod()
+            assertNotNull(decodeInt)
 
-        assertNotNull(decodeInt)
-
-        assertEquals("decodeInt", decodeInt.name)
-        assertNotNull(decodeInt.returnType)
-        assertEquals("int32_t", decodeInt.returnType?.key)
+            assertEquals("decodeInt", decodeInt.name)
+            assertNotNull(decodeInt.returnType)
+            assertEquals("int32_t", decodeInt.returnType?.key)
+        }
     }
 
     @Test
     fun `test parseProperty`() {
-        val property = "@property (class, readonly) int64 getValue".parseProperty()
-        assertNotNull(property)
-        assertEquals("getValue", property.name)
-        assertEquals("int64", property.type.key)
+        with(DiffContext()) {
+            val property = "@property (class, readonly) int64 getValue".parseProperty()
+            assertNotNull(property)
+            assertEquals("getValue", property.name)
+            assertEquals("int64", property.type.key)
+        }
     }
 
     @Test
@@ -54,24 +58,28 @@ class TestParsers {
 
     @Test
     fun `test complex generics`() {
-        val symbolTitle =
-            "@interface BooleanArraySerializer : PrimitiveArraySerializer<Boolean *, KotlinBooleanArray *, BooleanArrayBuilder *> <KSerializer>"
-                .parseObjCTypeHeader()
+        with(DiffContext()) {
+            val symbolTitle =
+                "@interface BooleanArraySerializer : PrimitiveArraySerializer<Boolean *, KotlinBooleanArray *, BooleanArrayBuilder *> <KSerializer>"
+                    .parseObjCTypeHeader()
 
-        val rawSuper = symbolTitle.rawSuper ?: error("rawSuper is null")
-        val type = rawSuper.parseType()
+            val rawSuper = symbolTitle.rawSuper ?: error("rawSuper is null")
+            val type = rawSuper.parseType()
 
-        assertEquals("PrimitiveArraySerializer", type.name)
-        assertEquals(
-            listOf("Boolean", "KotlinBooleanArray", "BooleanArrayBuilder", "KSerializer"),
-            type.generics.map { it.name })
+            assertEquals("PrimitiveArraySerializer", type.name)
+            assertEquals(
+                listOf("Boolean", "KotlinBooleanArray", "BooleanArrayBuilder", "KSerializer"),
+                type.generics.map { it.name })
+        }
     }
 
     @Test
     fun `parse type`() {
-        val type = "KotlinPair<__covariant A, __covariant B> ".parseType()
-        assertEquals("KotlinPair", type.name)
-        assertEquals(listOf("A", "B"), type.generics.map { it.name })
+        with(DiffContext()) {
+            val type = "KotlinPair<__covariant A, __covariant B> ".parseType()
+            assertEquals("KotlinPair", type.name)
+            assertEquals(listOf("A", "B"), type.generics.map { it.name })
+        }
     }
 
     @Test
@@ -83,19 +91,24 @@ class TestParsers {
 
     @Test
     fun `parse full type`() {
-        val header = "@interface A<T>: B<V>".parseObjCTypeHeader()
-        val type = parseType(header)
+        with(DiffContext()) {
+            val header = "@interface A<T>: B<V>".parseObjCTypeHeader()
+            val type = parseType(header)
 
-        assertEquals("A<T>", type.key)
-        assertEquals("T", type.generics.first().key)
-        assertEquals("B<V>", type.superType?.key)
-        assertEquals("V", type.superType?.generics?.first()?.key)
+            assertEquals("A<T>", type.key)
+            assertEquals("T", type.generics.first().key)
+            assertEquals("B<V>", type.superType?.key)
+            assertEquals("V", type.superType?.generics?.first()?.key)
+        }
+
     }
 
     @Test
     fun `parse simple header`() {
 
-        val types = """
+
+        with(DiffContext()) {
+            val types = """
             @interface A
             (int32_t)decodeInt
             @end
@@ -106,24 +119,25 @@ class TestParsers {
             @end
         """.trimIndent().toObjCTypes().toList()
 
-        assertEquals(3, types.size)
+            assertEquals(3, types.size)
 
-        val classA = types.first { it.key == "A" }
-        val classB = types.first { it.key == "B" }
-        val classC = types.first { it.key == "C" }
+            val classA = types.first { it.key == "A" }
+            val classB = types.first { it.key == "B" }
+            val classC = types.first { it.key == "C" }
 
-        assertNull(classA.superType)
-        assertEquals("A", classB.superType?.key)
-        assertEquals("B", classC.superType?.key)
+            assertNull(classA.superType)
+            assertEquals("A", classB.superType?.key)
+            assertEquals("B", classC.superType?.key)
 
-        assertEquals(1, classA.members.size)
-        assertTrue(classA.members.first() is ObjCMethod)
-        assertEquals("decodeInt", (classA.members.first() as ObjCMethod).name)
+            assertEquals(1, classA.members.size)
+            assertTrue(classA.members.first() is ObjCMethod)
+            assertEquals("decodeInt", (classA.members.first() as ObjCMethod).name)
 
-        assertEquals(0, classB.members.size)
+            assertEquals(0, classB.members.size)
 
-        assertEquals(1, classC.members.size)
-        assertTrue(classC.members.first() is ObjCProperty)
-        assertEquals("getValue", (classC.members.first() as ObjCProperty).name)
+            assertEquals(1, classC.members.size)
+            assertTrue(classC.members.first() is ObjCProperty)
+            assertEquals("getValue", (classC.members.first() as ObjCProperty).name)
+        }
     }
 }

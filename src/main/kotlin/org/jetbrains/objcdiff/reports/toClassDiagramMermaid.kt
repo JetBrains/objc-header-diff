@@ -5,7 +5,7 @@ import kotlin.reflect.KTypeProjection
 
 data class NamespacePrefix(val namespace: String, val prefix: String)
 
-context(ReportGenContext)
+context(DiffContext)
 fun List<ObjCType>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emptyList()): String {
 
     val sb = StringBuilder()
@@ -73,7 +73,7 @@ object Colors {
     const val OK = "#37a600"
 }
 
-context(ReportGenContext)
+context(DiffContext)
 private fun List<ObjCType>.buildClasses(
     sb: StringBuilder,
     references: MutableSet<String>,

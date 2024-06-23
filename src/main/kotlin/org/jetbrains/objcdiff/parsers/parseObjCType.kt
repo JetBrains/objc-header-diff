@@ -1,7 +1,9 @@
 package org.example.org.jetbrains.objcdiff.parsers
 
+import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCType
 
+context(DiffContext)
 fun String.parseType(): ObjCType {
     val nullable = this.contains("_Nullable")
     val raw = this.replace(" *", "")
@@ -11,7 +13,7 @@ fun String.parseType(): ObjCType {
         .replace("__covariant", "")
         .replace(" (Extensions)", "Extensions")
         .replace("><", ",")
-    //val raw = this.substringBefore(" ").replace("*", "")
+
     val typeRegex = Regex("([a-zA-Z0-9_]+)( )?(<.*>)?")
     val matchResult = typeRegex.matchEntire(raw.trim())
 
@@ -25,7 +27,7 @@ fun String.parseType(): ObjCType {
         emptyList()
     }
 
-    return ObjCType(
+    return buildType(
         key = raw,
         name = name,
         generics = generics,
@@ -34,6 +36,4 @@ fun String.parseType(): ObjCType {
         members = emptyList(),
         superType = null
     )
-
-    //return ObjCType(name, generics, nullable)
 }

@@ -1,9 +1,11 @@
 package org.example.org.jetbrains.objcdiff.parsers
 
+import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCType
 import org.example.org.jetbrains.objcdiff.ObjCMethod
 import org.example.org.jetbrains.objcdiff.ObjCParameter
 
+context(DiffContext)
 fun String.parseMethod(): ObjCMethod? {
     if (this.startsWith("@property")) {
         return null

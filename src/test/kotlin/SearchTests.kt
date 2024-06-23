@@ -1,3 +1,4 @@
+import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCType
 import org.example.org.jetbrains.objcdiff.reports.collectClassesAndProtocols
 import kotlin.test.Test
@@ -8,38 +9,43 @@ class SearchTests {
 
     @Test
     fun noConnected() {
-        val a = """
+        with(DiffContext()) {
+            val a = """
             @interface A
             @end
             
             @interface B
             @end
         """.trimIndent().collectClassesAndProtocols()
-        val classA = a.first { it.key == "A" }
-        val classB = a.first { it.key == "B" }
+            val classA = a.first { it.key == "A" }
+            val classB = a.first { it.key == "B" }
 
-        assertFalse(areConnected(classA, classB))
+            assertFalse(areConnected(classA, classB))
+        }
     }
 
     @Test
     fun superConnected() {
-        val a = """
+        with(DiffContext()) {
+            val a = """
             @interface A
             @end
             
             @interface B: A
             @end
         """.trimIndent().collectClassesAndProtocols()
-        val classA = a.first { it.key == "A" }
-        val classB = a.first { it.key == "B" }
+            val classA = a.first { it.key == "A" }
+            val classB = a.first { it.key == "B" }
 
-        assertFalse(areConnected(classA, classB))
-        assertTrue(areConnected(classB, classA))
+            assertFalse(areConnected(classA, classB))
+            assertTrue(areConnected(classB, classA))
+        }
     }
 
     @Test
     fun multiSuperConnected() {
-        val a = """
+        with(DiffContext()) {
+            val a = """
             @interface A
             @end
             
@@ -49,16 +55,17 @@ class SearchTests {
             @interface C: B
             @end
         """.trimIndent().collectClassesAndProtocols()
-        val classA = a.first { it.key == "A" }
-        val classB = a.first { it.key == "B" }
-        val classC = a.first { it.key == "C" }
+            val classA = a.first { it.key == "A" }
+            val classB = a.first { it.key == "B" }
+            val classC = a.first { it.key == "C" }
 
-        /**
-         * Add cache and referencing
-         */
-        //assertFalse(areConnected(classA, classC))
-        //assertTrue(areConnected(classB, classA))
-        //assertTrue(areConnected(classC, classA))
+            /**
+             * Add cache and referencing
+             */
+            //assertFalse(areConnected(classA, classC))
+            //assertTrue(areConnected(classB, classA))
+            //assertTrue(areConnected(classC, classA))
+        }
     }
 }
 
