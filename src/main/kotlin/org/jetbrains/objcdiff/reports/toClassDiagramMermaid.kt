@@ -2,12 +2,11 @@ package org.example.org.jetbrains.objcdiff.reports
 
 import org.example.org.jetbrains.objcdiff.*
 import kotlin.reflect.KTypeProjection
-import kotlin.time.Duration
 
 data class NamespacePrefix(val namespace: String, val prefix: String)
 
 context(ReportGenContext)
-fun List<ObjCClassOrInterface>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emptyList()): String {
+fun List<ObjCType>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emptyList()): String {
 
     val sb = StringBuilder()
     val references = mutableSetOf<String>()
@@ -20,15 +19,15 @@ fun List<ObjCClassOrInterface>.toClassDiagramMermaid(namespaces: List<NamespaceP
         buildClasses(sb, references)
     } else {
 
-        val namespacedSymbols = mutableMapOf<NamespacePrefix, MutableList<ObjCClassOrInterface>>()
-        val otherSymbols = mutableListOf<ObjCClassOrInterface>()
+        val namespacedSymbols = mutableMapOf<NamespacePrefix, MutableList<ObjCType>>()
+        val otherSymbols = mutableListOf<ObjCType>()
 
         namespaces.forEach { namespacedSymbols[it] = mutableListOf() }
 
         forEach { symbol ->
             var foundNamespace = false
             namespaces.forEach { namespacePrefix ->
-                if (symbol.type.name.startsWith(namespacePrefix.prefix)) {
+                if (symbol.name.startsWith(namespacePrefix.prefix)) {
                     foundNamespace = true
                     namespacedSymbols[namespacePrefix]?.add(symbol)
                 }
@@ -59,7 +58,7 @@ fun List<ObjCClassOrInterface>.toClassDiagramMermaid(namespaces: List<NamespaceP
             else -> null
         }
 
-        if (color != null) sb.appendLine("style ${symbol.type.name} fill: $color")
+        if (color != null) sb.appendLine("style ${symbol.name} fill: $color")
     }
 
     sb.appendLine("```")
@@ -75,7 +74,7 @@ object Colors {
 }
 
 context(ReportGenContext)
-private fun List<ObjCClassOrInterface>.buildClasses(
+private fun List<ObjCType>.buildClasses(
     sb: StringBuilder,
     references: MutableSet<String>,
     namespace: String = "",
@@ -121,9 +120,9 @@ private fun List<ObjCClassOrInterface>.buildClasses(
     }
 
     forEach { symbol ->
-        val symbolTypeName = withoutPrefix(symbol.type.name)
+        val symbolTypeName = withoutPrefix(symbol.name)
 
-        symbol.type.generics.forEach { referenceType(symbolTypeName, it, ObjCReferenceType.GENERIC) }
+        symbol.generics.forEach { referenceType(symbolTypeName, it, ObjCReferenceType.GENERIC) }
         referenceType(symbolTypeName, symbol.superType, ObjCReferenceType.SUPER)
 
         if (symbol.members.isNotEmpty()) {

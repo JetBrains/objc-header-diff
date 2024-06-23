@@ -25,5 +25,15 @@ fun String.parseType(): ObjCType {
         emptyList()
     }
 
-    return ObjCType(name, generics, nullable)
+    return ObjCType(
+        key = raw,
+        name = name,
+        generics = generics,
+        nullable = nullable,
+        classOrInterface = "class",
+        members = emptyList(),
+        superType = null
+    )
+
+    //return ObjCType(name, generics, nullable)
 }

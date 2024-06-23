@@ -1,13 +1,13 @@
 package org.example.org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.ObjCClassOrInterface
+import org.example.org.jetbrains.objcdiff.ObjCType
 
 context(ReportGenContext)
 fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): DiffReport {
 
-    val expected = (expectedReport.protocols + expectedReport.interfaces).associateBy { it.key }.toMutableMap()
-    val actual = (actualReport.protocols + actualReport.interfaces).associateBy { it.key }.toMutableMap()
-    val result = mutableMapOf<String, ObjCClassOrInterface>()
+    val expected = (expectedReport.types).associateBy { it.key }.toMutableMap()
+    val actual = (actualReport.types).associateBy { it.key }.toMutableMap()
+    val result = mutableMapOf<String, ObjCType>()
 
     verifyExpectedButNotDefined(actual, expected, result)
     verifyDefinedButNotExpected(actual, result)
@@ -35,8 +35,8 @@ fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): D
 }
 
 private fun verifyMembers(
-    actual: Map<String, ObjCClassOrInterface>,
-    expected: Map<String, ObjCClassOrInterface>
+    actual: Map<String, ObjCType>,
+    expected: Map<String, ObjCType>
 ) {
     val notEqual = actual.keys.intersect(expected.keys).filter { key ->
         actual[key]?.members != expected[key]?.members
@@ -49,8 +49,8 @@ private fun verifyMembers(
 }
 
 private fun verifyAllOk(
-    actual: Map<String, ObjCClassOrInterface>,
-    expected: Map<String, ObjCClassOrInterface>
+    actual: Map<String, ObjCType>,
+    expected: Map<String, ObjCType>
 ) {
     (actual + expected).forEach { (_, symbol) ->
         if (symbol.definedButNotExpected == null && symbol.expectedButNotDefined == null && symbol.unequalMembers == null) {
@@ -60,8 +60,8 @@ private fun verifyAllOk(
 }
 
 private fun verifyDefinedButNotExpected(
-    actual: Map<String, ObjCClassOrInterface>,
-    result: MutableMap<String, ObjCClassOrInterface>
+    actual: Map<String, ObjCType>,
+    result: MutableMap<String, ObjCType>
 ) {
     actual.forEach { (key, actualClassOrInterface) ->
         actualClassOrInterface.definedButNotExpected = true
@@ -70,9 +70,9 @@ private fun verifyDefinedButNotExpected(
 }
 
 private fun verifyExpectedButNotDefined(
-    actual: MutableMap<String, ObjCClassOrInterface>,
-    expected: MutableMap<String, ObjCClassOrInterface>,
-    result: MutableMap<String, ObjCClassOrInterface>
+    actual: MutableMap<String, ObjCType>,
+    expected: MutableMap<String, ObjCType>,
+    result: MutableMap<String, ObjCType>
 ) {
     expected.forEach { (key, expectedClassOrInterface) ->
         result[key] = expectedClassOrInterface

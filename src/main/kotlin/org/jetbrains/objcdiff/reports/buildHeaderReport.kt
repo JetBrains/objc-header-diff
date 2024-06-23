@@ -1,16 +1,20 @@
 package org.example.org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.ObjCClassOrInterface
+import org.example.org.jetbrains.objcdiff.ObjCType
+import org.example.org.jetbrains.objcdiff.parsers.ObjCTypeHeader
 import org.example.org.jetbrains.objcdiff.parsers.parseMembers
-import org.example.org.jetbrains.objcdiff.parsers.parseSymbolTitle
+import org.example.org.jetbrains.objcdiff.parsers.parseObjCTypeHeader
 import org.example.org.jetbrains.objcdiff.parsers.parseType
 import org.example.org.jetbrains.objcdiff.utils.loadResourceFile
 
 val startComment = "^/\\*\\*.*".toRegex()
 val endComment = "\\*/".toRegex()
 
-val startInterface = "@interface.*".toRegex()
-val startProtocol = "@protocol.*".toRegex()
+const val interfacePrefix = "@interface"
+const val protocolPrefix = "@protocol"
+
+val startInterface = "$interfacePrefix.*".toRegex()
+val startProtocol = "$protocolPrefix.*".toRegex()
 val end = "@end".toRegex()
 
 context(ReportGenContext)
@@ -21,13 +25,14 @@ fun buildHeaderReport(fileName: String): HeaderReport {
         .skipGroup(startComment, endComment)
         .skipForwardProtocols()
 
-    val interfaces = sequence.takeGroupWithType(startInterface, end, "interface")
-    val protocols = sequence.takeGroupWithType(startProtocol, end, "protocol")
     return HeaderReport(
         fileName = fileName,
-        protocols = protocols.toList(),
-        interfaces = interfaces.toList()
+        types = sequence.toObjCTypes().toList()
     )
+}
+
+fun String.collectClassesAndProtocols(): List<ObjCType> {
+    return lineSequence().toObjCTypes().toList()
 }
 
 fun Sequence<String>.skipEmpty(): Sequence<String> = sequence {
@@ -57,45 +62,49 @@ fun Sequence<String>.skipForwardProtocols(): Sequence<String> = sequence {
     }
 }
 
-fun Sequence<String>.takeGroupWithType(
-    start: Regex,
-    end: Regex,
-    symbolType: String
-) = sequence<ObjCClassOrInterface> {
+fun String.toObjCTypes(): Sequence<ObjCType> {
+    return lineSequence().toObjCTypes()
+}
+
+fun Sequence<String>.toObjCTypes() = sequence {
     var take = false
-    var key = ""
-    var rawMainType = ""
-    var rawSuperType: String? = null
-    val members = mutableListOf<String>()
-    for (str in this@takeGroupWithType) {
+    var header: ObjCTypeHeader? = null
+    val rawMembers = mutableListOf<String>()
+    for (str in this@toObjCTypes) {
         when {
-            str.matches(start) -> {
-
-                val symbolTitle = str.parseSymbolTitle(symbolType)
-
+            str.matches(startProtocol) || str.matches(startInterface) -> {
+                header = str.parseObjCTypeHeader()
                 take = true
-                members.clear()
-                key = symbolTitle.rawMain
-                rawMainType = symbolTitle.rawMain
-                rawSuperType = symbolTitle.rawSuper
+                rawMembers.clear()
             }
 
             str.matches(end) && take -> {
                 take = false
                 yield(
-                    ObjCClassOrInterface(
-                        key = key,
-                        type = rawMainType.parseType(),
-                        superType = rawSuperType?.parseType(),
-                        classOrInterface = symbolType,
-                        members = members.parseMembers()
-                    )
+                    parseType(header ?: error("header types isn't initialised"), rawMembers)
                 )
             }
 
             take -> {
-                members.add(str)
+                rawMembers.add(str)
             }
         }
     }
+}
+
+fun parseType(
+    header: ObjCTypeHeader,
+    members: List<String> = emptyList()
+): ObjCType {
+    val mainType = header.rawMain.parseType()
+    val superType = header.rawSuper?.parseType()
+    return ObjCType(
+        header.key,
+        mainType.name,
+        mainType.generics,
+        mainType.nullable,
+        header.protocolOrInterface,
+        members.parseMembers(),
+        superType
+    )
 }

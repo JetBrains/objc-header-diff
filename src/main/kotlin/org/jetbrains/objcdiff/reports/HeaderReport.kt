@@ -1,11 +1,13 @@
 package org.example.org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.ObjCClassOrInterface
+import org.example.org.jetbrains.objcdiff.ObjCType
 
 data class HeaderReport(
     val fileName: String,
-    val protocols: List<ObjCClassOrInterface>,
-    val interfaces: List<ObjCClassOrInterface>
+    val types: List<ObjCType>
 ) : Report() {
-    val allSymbolsMap = (protocols + interfaces).associateBy { it.key }
+    val allSymbolsMap = (types).associateBy { it.key }
+
+    val protocols = types.filter { it.classOrInterface == "protocol" }
+    val interfaces = types.filter { it.classOrInterface == "interface" }
 }

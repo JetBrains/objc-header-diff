@@ -1,8 +1,8 @@
 package org.example.org.jetbrains.objcdiff.parsers
 
+import org.example.org.jetbrains.objcdiff.ObjCType
 import org.example.org.jetbrains.objcdiff.ObjCMethod
 import org.example.org.jetbrains.objcdiff.ObjCParameter
-import org.example.org.jetbrains.objcdiff.ObjCType
 
 fun String.parseMethod(): ObjCMethod? {
     if (this.startsWith("@property")) {
@@ -35,15 +35,22 @@ fun String.parseMethod(): ObjCMethod? {
             name = methodName ?: "invalid_method_name",
             returnType = returnType,
             parameters = parameters.map {
-                val type = it.splitTypeValue()?.first?.parseType() ?: ObjCType("invalid_parameter_type")
+                val type = it.splitTypeValue()?.first?.parseType() ?: invalidParameterType
                 val name = it.splitTypeValue()?.second ?: "invalid_parameter_name"
                 ObjCParameter(name, type)
             }
         )
     }
-
-
 }
+
+private val invalidParameterType = ObjCType(
+    key = "invalid_parameter_type",
+    name = "invalid_parameter_type",
+    generics = emptyList(),
+    nullable = false,
+    classOrInterface = "class",
+    members = emptyList()
+)
 
 /**
  * "(int)size (string)name" -> ["(int)size", "(string)name"]
