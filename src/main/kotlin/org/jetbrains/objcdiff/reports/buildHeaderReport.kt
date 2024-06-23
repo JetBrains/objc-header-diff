@@ -101,8 +101,8 @@ fun parseType(
     header: ObjCTypeHeader,
     members: List<String> = emptyList()
 ): ObjCType {
-    val mainType = header.rawMain.parseType()
-    val superType = header.rawSuper?.parseType()
+    val mainType = header.rawMain.parseType(header.protocolOrInterface)
+    val superType = header.rawSuper?.parseType(header.protocolOrInterface)
     return buildType(
         key = header.key,
         name = mainType.name,

@@ -1,6 +1,6 @@
 import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCType
 import org.example.org.jetbrains.objcdiff.reports.collectClassesAndProtocols
+import org.example.org.jetbrains.objcdiff.utils.areConnected
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -59,21 +59,10 @@ class SearchTests {
             val classB = a.first { it.key == "B" }
             val classC = a.first { it.key == "C" }
 
-            /**
-             * Add cache and referencing
-             */
-            //assertFalse(areConnected(classA, classC))
-            //assertTrue(areConnected(classB, classA))
-            //assertTrue(areConnected(classC, classA))
+            assertFalse(areConnected(classA, classC))
+            assertTrue(areConnected(classB, classA))
+            assertTrue(areConnected(classC, classA))
         }
     }
 }
 
-fun areConnected(from: ObjCType, to: ObjCType): Boolean {
-    //if (from.type == to.type) return true
-    //if (from.superType != null && from.superType == to.type) return true
-
-    to.superType
-
-    return false
-}

@@ -4,7 +4,7 @@ import org.example.org.jetbrains.objcdiff.DiffContext
 import org.example.org.jetbrains.objcdiff.ObjCType
 
 context(DiffContext)
-fun String.parseType(): ObjCType {
+fun String.parseType(classOrInterface: String? = null): ObjCType {
     val nullable = this.contains("_Nullable")
     val raw = this.replace(" *", "")
         .replace("_Nullable", "")
@@ -32,7 +32,7 @@ fun String.parseType(): ObjCType {
         name = name,
         generics = generics,
         nullable = nullable,
-        classOrInterface = "class",
+        classOrInterface = classOrInterface,
         members = emptyList(),
         superType = null
     )

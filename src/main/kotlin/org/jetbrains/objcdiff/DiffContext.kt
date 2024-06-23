@@ -9,21 +9,24 @@ class DiffContext(
     private fun makeOrCache(type: ObjCType): ObjCType {
 
         val cachedType = cache[type.key]
-        val newType = if (cachedType != null) {
+        val freshType = if (cachedType != null) {
             println("decide what to pick between: ")
             println("cached: ${cache[type.key]}")
             println("new: $type")
-            pickFull(cachedType, type)
+            val fresh = pickFresh(cachedType, type)
+            println("fresh: $fresh")
+            fresh
         } else {
             type
         }
-        return newType
+        cache[type.key] = freshType
+        return freshType
     }
 
     fun buildType(
         key: String,
         name: String,
-        classOrInterface: String, //interface or class
+        classOrInterface: String?, //interface or class
         generics: List<ObjCType> = emptyList(),
         nullable: Boolean = false,
         members: List<ObjCMember> = emptyList(),
@@ -35,14 +38,14 @@ class DiffContext(
                 name = name,
                 generics = generics,
                 nullable = nullable,
-                classOrInterface = classOrInterface,
+                classOrInterface = classOrInterface ?: "undefined",
                 members = members,
                 superType = superType
             )
         )
     }
 
-    private fun pickFull(a: ObjCType, b: ObjCType): ObjCType {
+    private fun pickFresh(a: ObjCType, b: ObjCType): ObjCType {
         return if (a.superType != null && b.superType == null) {
             a
         } else {
