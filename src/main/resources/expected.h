@@ -9,3 +9,6 @@
 
 @interface DeliveryTruck: BasicCar
 @end
+
+@interface Taxi: BasicCar
+@end
