@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff
+package org.jetbrains.objcdiff
 
 abstract class Diffable {
     var expectedButNotDefined: Boolean? = null

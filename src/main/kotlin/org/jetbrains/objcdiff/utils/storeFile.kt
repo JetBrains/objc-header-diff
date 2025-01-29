@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff.utils
+package org.jetbrains.objcdiff.utils
 
 import java.io.File
 import java.io.IOException

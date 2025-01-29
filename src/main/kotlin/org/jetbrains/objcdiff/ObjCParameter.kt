@@ -1,3 +1,3 @@
-package org.example.org.jetbrains.objcdiff
+package org.jetbrains.objcdiff
 
 data class ObjCParameter(val name: String, val type: ObjCType)

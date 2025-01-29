@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
 fun DiffReport.toJson(): String {
     val sb = StringBuilder()

@@ -1,7 +1,7 @@
-package org.example.org.jetbrains.objcdiff.parsers
+package org.jetbrains.objcdiff.parsers
 
-import org.example.org.jetbrains.objcdiff.reports.interfacePrefix
-import org.example.org.jetbrains.objcdiff.reports.protocolPrefix
+import org.jetbrains.objcdiff.reports.interfacePrefix
+import org.jetbrains.objcdiff.reports.protocolPrefix
 
 fun String.parseObjCTypeHeader(): ObjCTypeHeader {
 

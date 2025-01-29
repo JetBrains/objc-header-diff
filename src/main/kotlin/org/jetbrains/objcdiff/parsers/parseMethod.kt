@@ -1,9 +1,9 @@
-package org.example.org.jetbrains.objcdiff.parsers
+package org.jetbrains.objcdiff.parsers
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCType
-import org.example.org.jetbrains.objcdiff.ObjCMethod
-import org.example.org.jetbrains.objcdiff.ObjCParameter
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.ObjCMethod
+import org.jetbrains.objcdiff.ObjCParameter
 
 context(DiffContext)
 fun String.parseMethod(): ObjCMethod? {

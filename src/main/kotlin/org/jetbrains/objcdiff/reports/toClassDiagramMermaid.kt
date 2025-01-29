@@ -1,6 +1,6 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.*
+import org.jetbrains.objcdiff.*
 import kotlin.reflect.KTypeProjection
 
 data class NamespacePrefix(val namespace: String, val prefix: String)

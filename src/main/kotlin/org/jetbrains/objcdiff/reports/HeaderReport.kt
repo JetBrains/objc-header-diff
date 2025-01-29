@@ -1,6 +1,6 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.ObjCType
 
 data class HeaderReport(
     val fileName: String,

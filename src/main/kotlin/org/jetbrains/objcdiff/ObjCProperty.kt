@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff
+package org.jetbrains.objcdiff
 
 data class ObjCProperty(
     val name: String,

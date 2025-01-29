@@ -1,7 +1,9 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.utils.storeFile
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.utils.storeFile
+import org.jetbrains.objcdiff.reports.buildDiffReport
+import java.io.File
 
 /**
  * Parses headers and generates 4 files:
@@ -11,15 +13,13 @@ import org.example.org.jetbrains.objcdiff.utils.storeFile
  * - `expected.h.md` info and classes graph of `expected.h`
  */
 context(DiffContext)
-fun buildReport() {
-    val actualFileName = "actual.h"
-    val expectedFileName = "expected.h"
+fun buildReport(actual: File, expected: File) {
 
-    val actualReport = buildHeaderReport(actualFileName)
-    storeFile("$actualFileName.md", actualReport.toMd())
+    val actualReport = buildHeaderReport(actual)
+    storeFile("${actual.name}.md", actualReport.toMd())
 
-    val expectedReport = buildHeaderReport(expectedFileName)
-    storeFile("$expectedFileName.md", expectedReport.toMd())
+    val expectedReport = buildHeaderReport(expected)
+    storeFile("${expected.name}.md", expectedReport.toMd())
 
     val diffReport = buildDiffReport(expectedReport, actualReport)
     storeFile("diff.md", diffReport.toMd())

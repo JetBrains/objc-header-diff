@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff
+package org.jetbrains.objcdiff
 
 data class ObjCType(
     override val key: String,

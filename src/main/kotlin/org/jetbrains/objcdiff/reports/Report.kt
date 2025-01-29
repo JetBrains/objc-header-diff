@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

@@ -1,9 +1,11 @@
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCMethod
-import org.example.org.jetbrains.objcdiff.ObjCProperty
-import org.example.org.jetbrains.objcdiff.parsers.*
-import org.example.org.jetbrains.objcdiff.reports.parseType
-import org.example.org.jetbrains.objcdiff.reports.toObjCTypes
+package org.jetbrains.objcdiff
+
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCMethod
+import org.jetbrains.objcdiff.ObjCProperty
+import org.jetbrains.objcdiff.parsers.*
+import org.jetbrains.objcdiff.reports.parseType
+import org.jetbrains.objcdiff.reports.toObjCTypes
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 

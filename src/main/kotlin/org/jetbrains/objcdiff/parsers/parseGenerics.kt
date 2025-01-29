@@ -1,7 +1,7 @@
-package org.example.org.jetbrains.objcdiff.parsers
+package org.jetbrains.objcdiff.parsers
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCType
 
 context(DiffContext)
 fun parseGenerics(genericsPart: String): List<ObjCType> {

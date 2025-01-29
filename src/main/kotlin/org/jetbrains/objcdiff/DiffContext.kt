@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff
+package org.jetbrains.objcdiff
 
 class DiffContext(
     val skipRefType: Boolean = false,

@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff.parsers
+package org.jetbrains.objcdiff.parsers
 
 /**
  * - `A : B` > `B`

@@ -1,10 +1,10 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.ObjCType
 
 data class DiffReport(
-    val expectedButNotDefined: Int,
-    val definedButNotExpected: Int,
-    val unequalMembers: Int,
+    val expectedButNotDefined: Set<String>,
+    val definedButNotExpected: Set<String>,
+    val unequalMembers: Set<String>,
     val merge: List<ObjCType>
-): Report()
+) : Report()

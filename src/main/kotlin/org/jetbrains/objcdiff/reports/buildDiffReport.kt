@@ -1,7 +1,9 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.reports.DiffReport
+import org.jetbrains.objcdiff.reports.HeaderReport
 
 context(DiffContext)
 fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): DiffReport {
@@ -28,9 +30,9 @@ fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): D
     }
 
     return DiffReport(
-        expectedButNotDefined = expectedButNotDefined.size,
-        definedButNotExpected = definedButNotExpected.size,
-        unequalMembers = unequalMembers.size,
+        expectedButNotDefined = expectedButNotDefined,
+        definedButNotExpected = definedButNotExpected,
+        unequalMembers = unequalMembers,
         merge = result.values.toList()
     )
 }

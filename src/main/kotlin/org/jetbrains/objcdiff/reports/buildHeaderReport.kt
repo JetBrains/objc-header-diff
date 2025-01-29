@@ -1,12 +1,13 @@
-package org.example.org.jetbrains.objcdiff.reports
+package org.jetbrains.objcdiff.reports
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCType
-import org.example.org.jetbrains.objcdiff.parsers.ObjCTypeHeader
-import org.example.org.jetbrains.objcdiff.parsers.parseMembers
-import org.example.org.jetbrains.objcdiff.parsers.parseObjCTypeHeader
-import org.example.org.jetbrains.objcdiff.parsers.parseType
-import org.example.org.jetbrains.objcdiff.utils.loadResourceFile
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.parsers.ObjCTypeHeader
+import org.jetbrains.objcdiff.parsers.parseMembers
+import org.jetbrains.objcdiff.parsers.parseObjCTypeHeader
+import org.jetbrains.objcdiff.parsers.parseType
+import org.jetbrains.objcdiff.utils.loadFile
+import java.io.File
 
 val startComment = "^/\\*\\*.*".toRegex()
 val endComment = "\\*/".toRegex()
@@ -19,8 +20,13 @@ val startProtocol = "$protocolPrefix.*".toRegex()
 val end = "@end".toRegex()
 
 context(DiffContext)
-fun buildHeaderReport(fileName: String): HeaderReport {
-    val sequence = loadResourceFile(fileName)
+fun buildHeaderReport(file: File): HeaderReport {
+    return buildHeaderReport(file.name, loadFile(file))
+}
+
+context(DiffContext)
+fun buildHeaderReport(fileName: String, source: String): HeaderReport {
+    val sequence = source
         .lineSequence()
         .skipEmpty()
         .skipGroup(startComment, endComment)

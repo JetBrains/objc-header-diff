@@ -1,4 +1,4 @@
-package org.example.org.jetbrains.objcdiff.utils
+package org.jetbrains.objcdiff.utils
 
 fun loadResourceFile(fileName: String): String {
     val classLoader = Thread.currentThread().contextClassLoader

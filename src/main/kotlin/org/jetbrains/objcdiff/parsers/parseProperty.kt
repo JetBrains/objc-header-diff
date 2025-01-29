@@ -1,7 +1,7 @@
-package org.example.org.jetbrains.objcdiff.parsers
+package org.jetbrains.objcdiff.parsers
 
-import org.example.org.jetbrains.objcdiff.DiffContext
-import org.example.org.jetbrains.objcdiff.ObjCProperty
+import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCProperty
 
 context(DiffContext)
 fun String.parseProperty(): ObjCProperty? {
