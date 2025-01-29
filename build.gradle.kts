@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "org.example"
+group = "org.jetbrains.objcdiff"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -31,4 +31,8 @@ tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
     }
+}
+
+tasks.clean {
+    delete(project.file("out"))
 }
