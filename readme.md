@@ -5,9 +5,24 @@ aren't the same between headers.
 
 ## Using
 
-1. Add two Objective-C header files into `resources`: `actual.h` and `expected.h`
-2. `./gradlew run`
-3. In `out` directory there will be 4 files
+There are two ways to use the tool:
+
+### Using files in resources directory
+
+1. Update two Objective-C header files into `resources`: `actual.h` and `expected.h`
+2. Run `./gradlew run`
+
+### Using command-line arguments
+
+1. Prepare your Objective-C header files anywhere on your system
+2. Run `./gradlew run -Pargs="src/main/resources/actual.h src/main/resources/expected.h"`
+
+Note: If the provided files don't exist, the tool will fall back to using the default files from the resources
+directory.
+
+### Output
+
+In `out` directory there will be 4 files
     - `actual.h.md` report which contains `actual` header
     - `expected.h.md` report which contains `expected` header
     - `diff.md` report which contains merged dependencies tree of `actual` and `expected` headers
@@ -136,4 +151,3 @@ classDiagram
     style RaceCar fill: #37a600
     style DeliveryTruck fill: #37a600
 ```
-

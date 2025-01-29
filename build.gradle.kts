@@ -24,7 +24,11 @@ kotlin {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("org.jetbrains.objcdiff.MainKt")
+}
+
+tasks.named<JavaExec>("run") {
+    args = project.properties["args"]?.toString()?.split(" ") ?: emptyList()
 }
 
 tasks.withType<KotlinCompile>().configureEach {
