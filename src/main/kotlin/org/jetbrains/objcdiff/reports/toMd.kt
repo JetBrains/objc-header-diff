@@ -23,6 +23,8 @@ fun DiffReport.toMd(): String {
     sb.appendLine("Defined, but not expected(${definedButNotExpected.size}): ${definedButNotExpected.joinToStringFormattedOrEmpty()}")
         .newMdLine()
     sb.appendLine("Unequal members(${unequalMembers.size}): `${unequalMembers.joinToString(", ")}`")
+        .newMdLine()
+    sb.appendLine("Member order unequal(${invalidOrderTypes.size}): `${invalidOrderTypes.joinToString(", ")}`")
     sb.appendLine((merge).toClassDiagramMermaid())
 
     return sb.toString()

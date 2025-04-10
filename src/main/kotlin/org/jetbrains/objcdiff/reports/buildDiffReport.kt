@@ -1,9 +1,8 @@
 package org.jetbrains.objcdiff.reports
 
 import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.MemberEquality
 import org.jetbrains.objcdiff.ObjCType
-import org.jetbrains.objcdiff.reports.DiffReport
-import org.jetbrains.objcdiff.reports.HeaderReport
 
 context(DiffContext)
 fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): DiffReport {
@@ -15,24 +14,26 @@ fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): D
     verifyExpectedButNotDefined(actual, expected, result)
     verifyDefinedButNotExpected(actual, result)
     verifyMembers(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
+    verifyMembersOrder(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
     verifyAllOk(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
 
     val definedButNotExpected = mutableSetOf<String>()
     val expectedButNotDefined = mutableSetOf<String>()
     val unequalMembers = mutableSetOf<String>()
+    val invalidOrderTypes = mutableSetOf<String>()
 
     (actual + expected).forEach { (key, symbol) ->
-        when {
-            symbol.expectedButNotDefined == true -> expectedButNotDefined.add(key)
-            symbol.definedButNotExpected == true -> definedButNotExpected.add(key)
-            symbol.unequalMembers == true -> unequalMembers.add(key)
-        }
+        if (symbol.expectedButNotDefined == true) expectedButNotDefined.add(key)
+        if (symbol.definedButNotExpected == true) definedButNotExpected.add(key)
+        if (symbol.membersEquality != setOf(MemberEquality.EQUAL)) unequalMembers.add(key)
+        if (symbol.membersEquality.contains(MemberEquality.INVALID_ORDER)) invalidOrderTypes.add(key)
     }
 
     return DiffReport(
         expectedButNotDefined = expectedButNotDefined,
         definedButNotExpected = definedButNotExpected,
         unequalMembers = unequalMembers,
+        invalidOrderTypes = invalidOrderTypes,
         merge = result.values.toList()
     )
 }
@@ -46,8 +47,8 @@ private fun verifyMembers(
     }.toSet()
 
     notEqual.forEach { key ->
-        actual[key]?.unequalMembers = true
-        expected[key]?.unequalMembers = true
+        actual[key]?.addMemberEquality(MemberEquality.UNEQUAL)
+        expected[key]?.addMemberEquality(MemberEquality.UNEQUAL)
     }
 }
 
@@ -56,7 +57,10 @@ private fun verifyAllOk(
     expected: Map<String, ObjCType>
 ) {
     (actual + expected).forEach { (_, symbol) ->
-        if (symbol.definedButNotExpected == null && symbol.expectedButNotDefined == null && symbol.unequalMembers == null) {
+        if (symbol.definedButNotExpected == null && symbol.expectedButNotDefined == null && symbol.membersEquality == setOf(
+                MemberEquality.EQUAL
+            )
+        ) {
             symbol.allOk = true
         }
     }
@@ -85,4 +89,46 @@ private fun verifyExpectedButNotDefined(
             actual.remove(key)
         }
     }
+}
+
+fun verifyMembersOrder(
+    actual: Map<String, ObjCType>,
+    expected: Map<String, ObjCType>
+) {
+    actual.forEach { (key, actualType) ->
+        val expectedType = expected[key]
+        if (expectedType != null) {
+            if (!verifyMembersOrder(actualType, expectedType)) {
+                actualType.addMemberEquality(MemberEquality.INVALID_ORDER)
+                expectedType.addMemberEquality(MemberEquality.INVALID_ORDER)
+            }
+        }
+    }
+}
+
+fun verifyMembersOrder(
+    actualType: ObjCType,
+    expectedType: ObjCType
+): Boolean {
+
+    val actualMembers = actualType.members.map { it.key }
+    val expectedMembers = expectedType.members.map { it.key }
+
+    if (actualMembers.isEmpty() && expectedMembers.isEmpty()) return true
+    if (actualMembers.isEmpty()) return true
+    if (expectedMembers.isEmpty()) return true
+
+    var a = 0
+    var e = 0
+    var actual = actualMembers.getOrNull(a)
+    var expected = actualMembers.getOrNull(e)
+    while (actual != null && expected != null) {
+        if (actual != expected) return false
+        a++
+        e++
+        actual = actualMembers.getOrNull(a)
+        expected = expectedMembers.getOrNull(a)
+    }
+
+    return true
 }

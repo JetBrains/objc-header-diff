@@ -53,7 +53,8 @@ fun List<ObjCType>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emp
         val color = when {
             symbol.expectedButNotDefined == true -> Colors.EXPECTED_BUT_NOT_DEFINED
             symbol.definedButNotExpected == true -> Colors.DEFINED_BUT_NOT_EXPECTED
-            symbol.unequalMembers == true -> Colors.MEMBERS_DO_NOT_MATCH
+            symbol.membersEquality != setOf(MemberEquality.EQUAL) -> Colors.MEMBERS_DO_NOT_MATCH
+            symbol.membersEquality.contains(MemberEquality.INVALID_ORDER) -> Colors.MEMBERS_ORDER
             symbol.allOk == true -> Colors.OK
             else -> null
         }
@@ -70,6 +71,7 @@ object Colors {
     const val EXPECTED_BUT_NOT_DEFINED = "#FF0000"
     const val DEFINED_BUT_NOT_EXPECTED = "#007bff"
     const val MEMBERS_DO_NOT_MATCH = "#e3a300"
+    const val MEMBERS_ORDER = "#99a300"
     const val OK = "#37a600"
 }
 
@@ -131,11 +133,12 @@ private fun List<ObjCType>.buildClasses(
             symbol.members.forEach { member ->
 
                 if (member is ObjCMethod) {
-                    membersSb.appendLine(" ${withoutPrefix(member.returnTypeName)} ${member.name}(${
-                        member.parameters.joinToString(
-                            ", "
-                        ) { withoutPrefix(it.type.name) }
-                    })")
+                    membersSb.appendLine(
+                        " ${withoutPrefix(member.returnTypeName)} ${member.name}(${
+                            member.parameters.joinToString(
+                                ", "
+                            ) { withoutPrefix(it.type.name) }
+                        })")
 
 
                 } else if (member is ObjCProperty) {
