@@ -1,12 +1,9 @@
 package org.jetbrains.objcdiff.parsers
 
-import org.jetbrains.objcdiff.DiffContext
-import org.jetbrains.objcdiff.ObjCType
-import org.jetbrains.objcdiff.ObjCMethod
-import org.jetbrains.objcdiff.ObjCParameter
+import org.jetbrains.objcdiff.*
 
 context(DiffContext)
-fun String.parseMethod(): ObjCMethod? {
+fun String.parseMethod(container: ObjCType? = null): ObjCMethod? {
     if (this.startsWith("@property")) {
         return null
     }
@@ -15,7 +12,7 @@ fun String.parseMethod(): ObjCMethod? {
     val raw = this.substringBefore("__attribute__").trim() //attributes are always in the end, we don't need them
     val nameAndReturnType = raw.substringBefore(':').extractTypeValuePairs()
     val parameters = raw.substringAfter(':').extractTypeValuePairs()
-
+    val static = this.startsWith("+")
 
     if (nameAndReturnType.size != 1) {
         println("Error parsing name and return type from `$this`")
@@ -24,11 +21,17 @@ fun String.parseMethod(): ObjCMethod? {
 
     val returnType = nameAndReturnType.first().splitTypeValue()?.first?.parseType()
     val methodName = nameAndReturnType.first().splitTypeValue()?.second
+    val isConstructor = returnType?.name == "instancetype"
 
     if (nameAndReturnType == parameters) {
         return ObjCMethod(
             name = methodName ?: "invalid_method_name",
-            returnType = returnType
+            returnType = returnType,
+            parameters = emptyList(),
+            isStatic = static,
+            isConstructor = isConstructor,
+            container = container,
+            source = this
         )
     } else {
 
@@ -40,17 +43,20 @@ fun String.parseMethod(): ObjCMethod? {
                 val type = it.splitTypeValue()?.first?.parseType() ?: invalidParameterType
                 val name = it.splitTypeValue()?.second ?: "invalid_parameter_name"
                 ObjCParameter(name, type)
-            }
+            },
+            isStatic = static,
+            isConstructor = isConstructor,
+            container = container,
+            source = this
         )
     }
 }
 
 private val invalidParameterType = ObjCType(
-    key = "invalid_parameter_type",
     name = "invalid_parameter_type",
     generics = emptyList(),
     nullable = false,
-    classOrInterface = "class",
+    classifierType = ClassifierType.Undefined,
     members = emptyList()
 )
 

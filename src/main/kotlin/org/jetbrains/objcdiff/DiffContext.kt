@@ -24,9 +24,8 @@ class DiffContext(
     }
 
     fun buildType(
-        key: String,
         name: String,
-        classOrInterface: String?, //interface or class
+        classifierType: ClassifierType,
         generics: List<ObjCType> = emptyList(),
         nullable: Boolean = false,
         members: List<ObjCMember> = emptyList(),
@@ -34,11 +33,10 @@ class DiffContext(
     ): ObjCType {
         return makeOrCache(
             ObjCType(
-                key = key,
                 name = name,
                 generics = generics,
                 nullable = nullable,
-                classOrInterface = classOrInterface ?: "undefined",
+                classifierType = classifierType,
                 members = members,
                 superType = superType
             )

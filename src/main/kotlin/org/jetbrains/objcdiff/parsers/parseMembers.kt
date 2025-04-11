@@ -2,11 +2,12 @@ package org.jetbrains.objcdiff.parsers
 
 import org.jetbrains.objcdiff.DiffContext
 import org.jetbrains.objcdiff.ObjCMember
+import org.jetbrains.objcdiff.ObjCType
 
 context(DiffContext)
-fun List<String>.parseMembers(): List<ObjCMember> {
+fun List<String>.parseMembers(container: ObjCType?): List<ObjCMember> {
     return mapNotNull {
         if (it.startsWith("@required")) return@mapNotNull null
-        it.parseProperty() ?: it.parseMethod()
+        it.parseProperty(container) ?: it.parseMethod(container)
     }
 }

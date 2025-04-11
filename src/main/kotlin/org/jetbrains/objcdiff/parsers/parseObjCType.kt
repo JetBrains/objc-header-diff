@@ -1,10 +1,11 @@
 package org.jetbrains.objcdiff.parsers
 
+import org.jetbrains.objcdiff.ClassifierType
 import org.jetbrains.objcdiff.DiffContext
 import org.jetbrains.objcdiff.ObjCType
 
 context(DiffContext)
-fun String.parseType(classOrInterface: String? = null): ObjCType {
+fun String.parseType(classOrInterface: ClassifierType = ClassifierType.Undefined): ObjCType {
     val nullable = this.contains("_Nullable")
     val raw = this.replace(" *", "")
         .replace("_Nullable", "")
@@ -28,11 +29,10 @@ fun String.parseType(classOrInterface: String? = null): ObjCType {
     }
 
     return buildType(
-        key = name,
         name = name,
         generics = generics,
         nullable = nullable,
-        classOrInterface = classOrInterface,
+        classifierType = classOrInterface,
         members = emptyList(),
         superType = null
     )

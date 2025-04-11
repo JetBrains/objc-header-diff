@@ -1,5 +1,6 @@
 package org.jetbrains.objcdiff.reports
 
+import org.jetbrains.objcdiff.ClassifierType
 import org.jetbrains.objcdiff.ObjCType
 
 data class HeaderReport(
@@ -8,6 +9,6 @@ data class HeaderReport(
 ) : Report() {
     val allSymbolsMap = (types).associateBy { it.key }
 
-    val protocols = types.filter { it.classOrInterface == "protocol" }
-    val interfaces = types.filter { it.classOrInterface == "interface" }
+    val protocols = types.filter { it.classifierType == ClassifierType.Protocol }
+    val interfaces = types.filter { it.classifierType == ClassifierType.Interface }
 }

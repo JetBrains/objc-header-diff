@@ -1,3 +1,5 @@
 package org.jetbrains.objcdiff
 
-abstract class ObjCMember : Diffable()
+abstract class ObjCMember(
+    open val source: String
+) : Diffable()
