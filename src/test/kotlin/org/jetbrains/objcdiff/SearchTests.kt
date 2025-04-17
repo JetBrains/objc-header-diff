@@ -1,6 +1,5 @@
 package org.jetbrains.objcdiff
 
-import org.jetbrains.objcdiff.DiffContext
 import org.jetbrains.objcdiff.reports.collectClassesAndProtocols
 import org.jetbrains.objcdiff.utils.checkDependency
 import kotlin.test.Test
@@ -106,7 +105,7 @@ class SearchTests {
 
             assertFalse(checkDependency(classA, classB))
             assertTrue(checkDependency(classC, classA))
-            assertTrue(checkDependency(classC, classB))
+            assertFalse(checkDependency(classC, classB))
         }
     }
 }

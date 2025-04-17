@@ -14,10 +14,8 @@ class SwiftCallPrinter {
                 if (index > 0) sb.append(", ")
                 sb.append("$argName: ")
 
-                // Handle default values based on type
-                when (argType.source.name) {
-                    "BOOL" -> sb.append("true")
-                    else -> error("unsupported type '${argType.source.name}'")
+                if (argType.isPrimitive) {
+                    sb.append(createPrimitiveValue(argType))
                 }
             }
         }
@@ -28,5 +26,13 @@ class SwiftCallPrinter {
 
     fun print(): String {
         return sb.toString()
+    }
+}
+
+fun createPrimitiveValue(type: SwiftType): String {
+    return when (type.name) {
+        "BOOL" -> "true"
+        "NSString" -> "\"\""
+        else -> error("unsupported type '${type.name}'")
     }
 }

@@ -32,7 +32,7 @@ class SwiftCallPrinterTest {
             isStatic = true,
             isConstructor = false,
             arguments = mapOf(
-                "a" to ObjCType(name = "BOOL").asSwiftType()!!
+                "a" to ObjCType(name = "BOOL").asSwiftType()
             ),
             container = null
         )
@@ -52,15 +52,16 @@ class SwiftCallPrinterTest {
             isStatic = true,
             isConstructor = false,
             arguments = mapOf(
-                "a" to ObjCType(name = "BOOL").asSwiftType()!!
+                "a" to ObjCType(name = "BOOL").asSwiftType(),
+                "b" to ObjCType(name = "NSString").asSwiftType()
             ),
             container = null
         )
 
-        val expectedSwift = """
-            bar(a: true)
+        val expected = """
+            bar(a: true, b: "")
         """.trimIndent()
-
-        assertEquals(expectedSwift, printer.add(foo).print())
+        val actual = printer.add(foo).print()
+        assertEquals(expected, actual)
     }
 }
