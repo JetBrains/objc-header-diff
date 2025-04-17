@@ -18,36 +18,54 @@ data class GroupToken(
     constructor(name: String, child: GroupToken) : this(name, listOf(child))
 }
 
-fun parseGroupToken(source: String, pointer: Int = 0): GroupToken {
+fun Char.isBreak(): Boolean {
+    return this == ' '
+}
+
+fun parseGroupToken(source: String, pointer: Int = 0): List<GroupToken> {
 
     var idx = pointer
 
-    fun traverse(s: String): GroupToken {
-        val result = mutableListOf<GroupToken>()
-        var name = ""
+    fun traverse(): List<GroupToken> {
 
-        while (isInRange(s, idx)) {
-            val ch = s[idx]
-            idx++
+        val children = mutableListOf<GroupToken>()
+        var child = ""
+
+        fun consumeChild(ch: List<GroupToken> = emptyList(), forceConsume: Boolean = false): Boolean {
+            if (child.isNotEmpty() || forceConsume) {
+                children.add(GroupToken(child, ch))
+                child = ""
+                return true
+            } else return false
+        }
+
+        while (isInRange(source, idx)) {
+            val ch = source[idx++]
             if (isOpening(ch)) {
-                result.add(traverse(s))
+                val chch = traverse()
+                val consumed = consumeChild(chch, true)
+                if (!consumed) {
+                    children.addAll(chch)
+                }
             } else if (isClosing(ch)) {
-                return makeGroupToken(name, result)
+                consumeChild()
+                return children
             } else {
-                name += ch
+                if (ch.isBreak()) {
+                    consumeChild()
+                } else {
+                    child += ch
+                }
             }
         }
 
-        return makeGroupToken(name, result)
+        consumeChild()
+
+        return children
     }
 
-    return traverse(source)
+    return traverse()
 }
-
-private fun makeGroupToken(
-    name: String,
-    result: MutableList<GroupToken>
-) = GroupToken(name.trim(), result)
 
 private fun isOpening(ch: Char): Boolean {
     return ch.getOpeningOrNull() != null
