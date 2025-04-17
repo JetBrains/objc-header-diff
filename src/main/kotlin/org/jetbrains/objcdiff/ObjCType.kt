@@ -18,12 +18,13 @@ data class ObjCType(
 }
 
 val primitives = setOf(
+    "Int", "String",
     // Basic C types
     "BOOL", "char", "short", "int", "long", "float", "double",
     // Foundation types
     "NSString", "NSInteger", "NSUInteger", "CGFloat",
     // Objective-C runtime types
-    "id", "Class", "SEL", "IMP",
+    "Class", "SEL", "IMP",
     // Fixed-width integer types
     "int8_t", "uint8_t", "int16_t", "uint16_t", "int32_t", "uint32_t", "int64_t", "uint64_t"
 )
@@ -33,7 +34,12 @@ enum class ClassifierType {
     Undefined // for the cases when it's types comes from dependency
 }
 
+@JvmName("asNullableSwiftType")
 fun ObjCType?.asSwiftType(): SwiftType? {
     if (this == null) return null
+    return SwiftType(name, this)
+}
+
+fun ObjCType.asSwiftType(): SwiftType {
     return SwiftType(name, this)
 }
