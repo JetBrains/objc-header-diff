@@ -116,21 +116,32 @@ private fun List<ObjCType>.buildClasses(
             references.add("$from --> $targetType : $refName")
         }
 
-        to.generics.forEach { generic ->
-            referenceType(from, generic, ObjCReferenceType.GENERIC)
+        if (to is ObjCType.ObjectType) {
+            to.generics.forEach { generic ->
+                referenceType(from, generic, ObjCReferenceType.GENERIC)
+            }
         }
     }
 
     forEach { symbol ->
         val symbolTypeName = withoutPrefix(symbol.name)
+        var generics = emptyList<ObjCType>()
+        var members = emptyList<ObjCMember>()
+        var superType: ObjCType? = null
 
-        symbol.generics.forEach { referenceType(symbolTypeName, it, ObjCReferenceType.GENERIC) }
-        referenceType(symbolTypeName, symbol.superType, ObjCReferenceType.SUPER)
+        if(symbol is ObjCType.ObjectType) {
+            generics = symbol.generics
+            members = symbol.members
+            superType = symbol.superType
+        }
 
-        if (symbol.members.isNotEmpty()) {
+        generics.forEach { referenceType(symbolTypeName, it, ObjCReferenceType.GENERIC) }
+        referenceType(symbolTypeName, superType, ObjCReferenceType.SUPER)
+
+        if (members.isNotEmpty()) {
             namespaceSb.appendLine("class $symbolTypeName {")
             val membersSb = StringBuilder()
-            symbol.members.forEach { member ->
+            members.forEach { member ->
 
                 if (member is ObjCMethod) {
                     membersSb.appendLine(
@@ -151,7 +162,7 @@ private fun List<ObjCType>.buildClasses(
             namespaceSb.appendLine("class $symbolTypeName")
         }
 
-        symbol.members.forEach { member ->
+        members.forEach { member ->
 
             val kTypeProjection: KTypeProjection.Companion? = null
             kTypeProjection?.STAR
@@ -170,8 +181,6 @@ private fun List<ObjCType>.buildClasses(
             }
         }
     }
-
-    //if (namespace.isNotEmpty()) namespaceSb.appendLine("}")
 
     if (namespaceSb.isNotEmpty()) {
 

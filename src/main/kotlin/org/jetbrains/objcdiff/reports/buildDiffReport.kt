@@ -13,9 +13,9 @@ fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): D
 
     verifyExpectedButNotDefined(actual, expected, result)
     verifyDefinedButNotExpected(actual, result)
-    verifyMembers(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
-    verifyMembersOrder(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
-    verifyAllOk(actualReport.allSymbolsMap, expectedReport.allSymbolsMap)
+    verifyMembers(actualReport.allTypes, expectedReport.allTypes)
+    verifyMembersOrder(actualReport.allTypes, expectedReport.allTypes)
+    verifyAllOk(actualReport.allTypes, expectedReport.allTypes)
 
     val definedButNotExpected = mutableSetOf<String>()
     val expectedButNotDefined = mutableSetOf<String>()
@@ -43,7 +43,11 @@ private fun verifyMembers(
     expected: Map<String, ObjCType>
 ) {
     val notEqual = actual.keys.intersect(expected.keys).filter { key ->
-        actual[key]?.members != expected[key]?.members
+        val actualType = actual[key]
+        val expectedType = expected[key]
+        if (actualType is ObjCType.ObjectType && expectedType is ObjCType.ObjectType) {
+            actualType.members != expectedType.members
+        } else true
     }.toSet()
 
     notEqual.forEach { key ->
@@ -111,23 +115,25 @@ fun verifyMembersOrder(
     expectedType: ObjCType
 ): Boolean {
 
-    val actualMembers = actualType.members.map { it.key }
-    val expectedMembers = expectedType.members.map { it.key }
+    if (actualType is ObjCType.ObjectType && expectedType is ObjCType.ObjectType) {
+        val actualMembers = actualType.members.map { it.key }
+        val expectedMembers = expectedType.members.map { it.key }
 
-    if (actualMembers.isEmpty() && expectedMembers.isEmpty()) return true
-    if (actualMembers.isEmpty()) return true
-    if (expectedMembers.isEmpty()) return true
+        if (actualMembers.isEmpty() && expectedMembers.isEmpty()) return true
+        if (actualMembers.isEmpty()) return true
+        if (expectedMembers.isEmpty()) return true
 
-    var a = 0
-    var e = 0
-    var actual = actualMembers.getOrNull(a)
-    var expected = actualMembers.getOrNull(e)
-    while (actual != null && expected != null) {
-        if (actual != expected) return false
-        a++
-        e++
-        actual = actualMembers.getOrNull(a)
-        expected = expectedMembers.getOrNull(a)
+        var a = 0
+        var e = 0
+        var actual = actualMembers.getOrNull(a)
+        var expected = actualMembers.getOrNull(e)
+        while (actual != null && expected != null) {
+            if (actual != expected) return false
+            a++
+            e++
+            actual = actualMembers.getOrNull(a)
+            expected = expectedMembers.getOrNull(a)
+        }
     }
 
     return true

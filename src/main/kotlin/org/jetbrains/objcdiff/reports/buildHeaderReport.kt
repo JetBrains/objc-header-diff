@@ -5,7 +5,7 @@ import org.jetbrains.objcdiff.ObjCType
 import org.jetbrains.objcdiff.parsers.ObjCTypeHeader
 import org.jetbrains.objcdiff.parsers.parseMembers
 import org.jetbrains.objcdiff.parsers.parseObjCTypeHeader
-import org.jetbrains.objcdiff.parsers.parseType
+import org.jetbrains.objcdiff.parsers.parseObjCType
 import org.jetbrains.objcdiff.utils.loadFile
 import java.io.File
 
@@ -91,7 +91,7 @@ fun Sequence<String>.toObjCTypes() = sequence {
             str.matches(end) && take -> {
                 take = false
                 yield(
-                    parseType(header ?: error("header types isn't initialised"), rawMembers)
+                    buildObjectType(header ?: error("header types isn't initialised"), rawMembers)
                 )
             }
 
@@ -103,18 +103,20 @@ fun Sequence<String>.toObjCTypes() = sequence {
 }
 
 context(DiffContext)
-fun parseType(
+fun buildObjectType(
     header: ObjCTypeHeader,
     members: List<String> = emptyList()
-): ObjCType {
-    val mainType = header.rawMain.parseType(header.classifierType)
-    val superType = header.rawSuper?.parseType(header.classifierType)
-    return buildType(
-        name = mainType.name,
-        generics = mainType.generics,
-        nullable = mainType.nullable,
-        classifierType = header.classifierType,
-        members = members.parseMembers(mainType),
-        superType = superType
+): ObjCType.ObjectType {
+    
+    val mainType = header.rawMain.parseObjCType(header.classifierType) as ObjCType.ObjectType
+    val superType = header.rawSuper?.parseObjCType(header.classifierType) as? ObjCType.ObjectType
+
+    return buildObjectType(
+        mainType.name,
+        mainType.generics,
+        members.parseMembers(mainType),
+        mainType.nullable,
+        superType,
+        header.classifierType
     )
 }

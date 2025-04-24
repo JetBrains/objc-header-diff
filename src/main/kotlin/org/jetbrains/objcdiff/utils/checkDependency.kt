@@ -2,6 +2,7 @@ package org.jetbrains.objcdiff.utils
 
 import org.jetbrains.objcdiff.ObjCProperty
 import org.jetbrains.objcdiff.ObjCType
+import org.jetbrains.objcdiff.getSuperTypeOrNull
 
 /**
  * class A, class B - are not connected
@@ -9,21 +10,23 @@ import org.jetbrains.objcdiff.ObjCType
  */
 fun checkDependency(from: ObjCType?, to: ObjCType): Boolean {
     if (from == null) return false
-    val fromSuper = from.superType
-    if (fromSuper != null && fromSuper.key == to.key) return true
-    if (fromSuper != null) {
-        if (checkDependency(fromSuper, to)) {
-            return true
-        }
-    }
-
-    from.members.forEach { member ->
-        if (member is ObjCProperty) {
-            if (member.type.key == to.key) {
+    if (from is ObjCType.ObjectType) {
+        val fromSuper = from.superType
+        if (fromSuper != null && fromSuper.key == to.key) return true
+        if (fromSuper != null) {
+            if (checkDependency(fromSuper, to)) {
                 return true
-            } else {
-                if (checkDependency(member.type.superType, to)) {
+            }
+        }
+
+        from.members.forEach { member ->
+            if (member is ObjCProperty) {
+                if (member.type.key == to.key) {
                     return true
+                } else {
+                    if (checkDependency(member.type.getSuperTypeOrNull(), to)) {
+                        return true
+                    }
                 }
             }
         }

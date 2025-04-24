@@ -25,7 +25,7 @@ fun String.parseProperty(container: ObjCType? = null): ObjCProperty? {
     return if (nameAndType.size == 2) {
         ObjCProperty(
             name = nameAndType[1],
-            type = nameAndType[0].parseType(),
+            type = nameAndType[0].parseObjCType(),
             nullable = nullable,
             container = container,
             source = this

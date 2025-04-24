@@ -1,6 +1,6 @@
 package org.jetbrains.objcdiff.parsers
 
-fun consumeUntilOrEnd(target: Char, source: String, pointer: Int, onResult: (String, Int) -> Unit) {
+inline fun consumeUntilOrEnd(target: Char, source: String, pointer: Int, onResult: (String, Int) -> Unit) {
     var i = pointer
     val sb = StringBuilder()
     while (source[i] != target) {

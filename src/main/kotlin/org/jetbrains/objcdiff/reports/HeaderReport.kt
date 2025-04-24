@@ -7,8 +7,8 @@ data class HeaderReport(
     val fileName: String,
     val types: List<ObjCType>
 ) : Report() {
-    val allSymbolsMap = (types).associateBy { it.key }
+    val allTypes = (types).associateBy { it.key }
 
-    val protocols = types.filter { it.classifierType == ClassifierType.Protocol }
-    val interfaces = types.filter { it.classifierType == ClassifierType.Interface }
+    val protocols = types.filterIsInstance<ObjCType.ObjectType>().filter { it.type == ClassifierType.Protocol }
+    val interfaces = types.filterIsInstance<ObjCType.ObjectType>().filter { it.type == ClassifierType.Interface }
 }
