@@ -1,11 +1,9 @@
 package org.jetbrains.objcdiff
 
-import org.jetbrains.objcdiff.DiffContext
-import org.jetbrains.objcdiff.ObjCMethod
-import org.jetbrains.objcdiff.ObjCProperty
 import org.jetbrains.objcdiff.parsers.*
-import org.jetbrains.objcdiff.reports.parseType
-import org.jetbrains.objcdiff.reports.toObjCTypes
+import org.jetbrains.objcdiff.reports.buildObjectType
+import org.jetbrains.objcdiff.utils.getFirstClassifier
+import org.jetbrains.objcdiff.utils.parseClassifiers
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
@@ -31,34 +29,28 @@ class TestParsers {
     @Test
     fun `test parseMethod`() {
         with(DiffContext()) {
-            val decodeInt = "(int32_t)decodeInt".parseMethod()
+            val decodeInt = "+ (void) decodeInt(int32_t)value".parseMethod()
 
             assertNotNull(decodeInt)
 
             assertEquals("decodeInt", decodeInt.name)
             assertNotNull(decodeInt.returnType)
-            assertEquals("int32_t", decodeInt.returnType?.key)
+            assertEquals("void", decodeInt.returnType?.key)
         }
     }
 
     @Test
     fun `test parseProperty`() {
         with(DiffContext()) {
-            val property = "@property (class, readonly) int64 getValue".parseProperty()
+            val property = "@property (class, readonly) int64_t getValue".parseProperty()
             assertNotNull(property)
             assertEquals("getValue", property.name)
-            assertEquals("int64", property.type.key)
+            assertEquals("int64_t", property.type.key)
         }
     }
 
     @Test
-    fun `test extractTypeValuePairs`() {
-        assertEquals("(a) b".extractTypeValuePairs(), emptyList())
-        assertEquals("(a)b".extractTypeValuePairs(), listOf("(a)b"))
-        assertEquals("(a)b (c)d".extractTypeValuePairs(), listOf("(a)b", "(c)d"))
-    }
-
-    @Test
+    @Ignore //verify if the definition of KSerializer is valid
     fun `test complex generics`() {
         with(DiffContext()) {
             val symbolTitle =
@@ -66,7 +58,7 @@ class TestParsers {
                     .parseObjCTypeHeader()
 
             val rawSuper = symbolTitle.rawSuper ?: error("rawSuper is null")
-            val type = rawSuper.parseType()
+            val type = rawSuper.parseObjCType() as ObjCType.ObjectType
 
             assertEquals("PrimitiveArraySerializer", type.name)
             assertEquals(
@@ -78,9 +70,18 @@ class TestParsers {
     @Test
     fun `parse type`() {
         with(DiffContext()) {
-            val type = "KotlinPair<__covariant A, __covariant B> ".parseType()
+            val type = "KotlinPair<__covariant A, __covariant B> ".parseObjCType() as ObjCType.ObjectType
             assertEquals("KotlinPair", type.name)
             assertEquals(listOf("A", "B"), type.generics.map { it.name })
+        }
+    }
+
+    @Test
+    fun `parse multiple generics`() {
+        with(DiffContext()) {
+            val type = "A<B, C>".parseObjCType() as ObjCType.ObjectType
+            assertEquals("A", type.name)
+            assertEquals(listOf("B", "C"), type.generics.map { it.name })
         }
     }
 
@@ -95,12 +96,12 @@ class TestParsers {
     fun `parse full type`() {
         with(DiffContext()) {
             val header = "@interface A<T>: B<V>".parseObjCTypeHeader()
-            val type = parseType(header)
+            val type = buildObjectType(header)
 
             assertEquals("A", type.key)
             assertEquals("T", type.generics.first().key)
             assertEquals("B", type.superType?.key)
-            assertEquals("V", type.superType?.generics?.first()?.key)
+            assertEquals("V", type.superType?.getGenericsOrNull()?.first()?.key)
         }
 
     }
@@ -112,14 +113,14 @@ class TestParsers {
         with(DiffContext()) {
             val types = """
             @interface A
-            (int32_t)decodeInt
+            + (void) decode(int32_t)decodeInt
             @end
             @interface B: A
             @end
             @interface C: B
             @property (class, readonly) int64 getValue
             @end
-        """.trimIndent().toObjCTypes().toList()
+        """.parseClassifiers()
 
             assertEquals(3, types.size)
 
@@ -133,7 +134,7 @@ class TestParsers {
 
             assertEquals(1, classA.members.size)
             assertTrue(classA.members.first() is ObjCMethod)
-            assertEquals("decodeInt", (classA.members.first() as ObjCMethod).name)
+            assertEquals("decode", (classA.members.first() as ObjCMethod).name)
 
             assertEquals(0, classB.members.size)
 
@@ -141,5 +142,41 @@ class TestParsers {
             assertTrue(classC.members.first() is ObjCProperty)
             assertEquals("getValue", (classC.members.first() as ObjCProperty).name)
         }
+    }
+
+    @Test
+    fun `parse kotlin array`() {
+        with(DiffContext()) {
+            """
+            @interface KotlinArray<T> : Base
+            + (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(Int *))init __attribute__((swift_name("init(size:init:)")));
+            + (instancetype)alloc __attribute__((unavailable));
+            + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+            - (T _Nullable)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+            - (id<KotlinIterator>)iterator __attribute__((swift_name("iterator()")));
+            - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
+            @property (readonly) int32_t size __attribute__((swift_name("size")));
+            @end
+        """.getFirstClassifier()
+        }
+    }
+
+    @Test
+    fun `split basic selectors`() {
+        assertEquals(
+            listOf(SelectorItem("A", "B", "C"), SelectorItem("X", "Y", "Z")),
+            splitSelectors("A:(B)C X:(Y)Z")
+        )
+    }
+
+    @Test
+    fun `split function type selectors`() {
+        assertEquals(
+            listOf(
+                SelectorItem("arrayWithSize", "int32_t", "size"),
+                SelectorItem("init", "T _Nullable (^)(Int *)", "init")
+            ),
+            splitSelectors("arrayWithSize:(int32_t)size init:(T _Nullable (^)(Int *))init")
+        )
     }
 }

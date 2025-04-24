@@ -32,7 +32,7 @@ class SwiftCallPrinterTest {
             isStatic = true,
             isConstructor = false,
             arguments = mapOf(
-                "a" to ObjCType(name = "BOOL").asSwiftType()
+                "a" to ObjCType.PrimitiveType(name = "BOOL").asSwiftType()
             ),
             container = null
         )
@@ -52,8 +52,8 @@ class SwiftCallPrinterTest {
             isStatic = true,
             isConstructor = false,
             arguments = mapOf(
-                "a" to ObjCType(name = "BOOL").asSwiftType(),
-                "b" to ObjCType(name = "NSString").asSwiftType()
+                "a" to ObjCType.PrimitiveType(name = "BOOL").asSwiftType(),
+                "b" to ObjCType.PrimitiveType(name = "NSString").asSwiftType()
             ),
             container = null
         )

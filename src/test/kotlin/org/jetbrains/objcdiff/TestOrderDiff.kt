@@ -12,14 +12,14 @@ class TestOrderDiff {
         with(DiffContext()) {
             val orderA = """
             @interface Foo
-                (int32_t)bar1
-                (int32_t)bar2
+                + (void) bar1(int32_t)bar1
+                + (void) bar2(int32_t)bar2
             @end
         """.getFirstType()
             val orderB = """
             @interface Foo
-                (int32_t)bar2
-                (int32_t)bar1
+                + (void) bar2(int32_t)bar2
+                + (void) bar1(int32_t)bar1
             @end
         """.getFirstType()
             assertFalse(verifyMembersOrder(orderA, orderB))
@@ -31,14 +31,14 @@ class TestOrderDiff {
         with(DiffContext()) {
             val orderA = """
             @interface Foo
-                (int32_t)bar1
-                (int32_t)bar2
+                + (void) bar1(int32_t)bar1
+                + (void) bar2(int32_t)bar2
             @end
         """.getFirstType()
             val orderB = """
             @interface Foo
-                (int32_t)bar1
-                (int32_t)bar2
+                + (void) bar1(int32_t)bar1
+                + (void) bar2(int32_t)bar2
             @end
         """.getFirstType()
             assertTrue(verifyMembersOrder(orderA, orderB))
