@@ -2,19 +2,50 @@ package org.jetbrains.objcdiff
 
 import org.jetbrains.objcdiff.swift.SwiftType
 
-data class ObjCType(
-    val name: String,
-    val generics: List<ObjCType> = emptyList(),
-    val nullable: Boolean = false,
-    val classifierType: ClassifierType = ClassifierType.Undefined,
-    val members: List<ObjCMember> = emptyList(),
-    val superType: ObjCType? = null
+sealed class ObjCType(
+    open val name: String = ""
 ) : Diffable() {
+
+    data class PrimitiveType(
+        override val name: String
+    ) : ObjCType()
+
+    data class ObjectType(
+        override val name: String,
+        val generics: List<ObjCType> = emptyList(),
+        val members: List<ObjCMember> = emptyList(),
+        val superType: ObjCType? = null,
+        val nullable: Boolean = false,
+        val type: ClassifierType = ClassifierType.Undefined
+    ) : ObjCType()
+
+    data class LambdaType(
+        val returnType: ObjCType,
+        val arguments: List<ObjCType>
+    ) : ObjCType() {
+        override val key: String
+            get() = returnType.key + " " + arguments.joinToString(", ") { it.key }
+    }
 
     override val key: String
         get() = name
+
     val isPrimitive: Boolean
         get() = primitives.contains(name)
+}
+
+fun ObjCType.getSuperTypeOrNull(): ObjCType? {
+    return when (this) {
+        is ObjCType.ObjectType -> superType
+        else -> null
+    }
+}
+
+fun ObjCType.getGenericsOrNull(): List<ObjCType>? {
+    return when (this) {
+        is ObjCType.ObjectType -> generics
+        else -> null
+    }
 }
 
 val primitives = setOf(

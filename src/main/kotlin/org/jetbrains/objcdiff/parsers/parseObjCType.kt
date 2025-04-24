@@ -5,35 +5,49 @@ import org.jetbrains.objcdiff.DiffContext
 import org.jetbrains.objcdiff.ObjCType
 
 context(DiffContext)
-fun String.parseType(classOrInterface: ClassifierType = ClassifierType.Undefined): ObjCType {
-    val nullable = this.contains("_Nullable")
-    val raw = this.replace(" *", "")
-        .replace("_Nullable", "")
-        .replace("struct", "")
-        .replace("__contravariant", "")
-        .replace("__covariant", "")
-        .replace(" (Extensions)", "Extensions")
-        .replace("><", ",")
+fun String.parseObjCType(classifierType: ClassifierType = ClassifierType.Undefined): ObjCType {
+    return foldTokensToType(parseObjCTokens(this), classifierType).first()
+}
 
-    val typeRegex = Regex("([a-zA-Z0-9_]+)( )?(<.*>)?")
-    val matchResult = typeRegex.matchEntire(raw.trim())
+context(DiffContext)
+fun foldTokensToType(
+    tokens: List<ObjCToken>,
+    classOrInterface: ClassifierType = ClassifierType.Undefined
+): List<ObjCType> {
+    if (tokens.isEmpty()) return emptyList()
 
-    require(matchResult != null) { "Invalid type format: `$raw` with original `$this`" }
+    return tokens.filterPrimaryTokens().map { token ->
+        if (token is ObjCToken.PrimitiveType) {
+            buildPrimitiveType(token.value)
+        } else if (token is ObjCToken.LambdaType) {
+            buildLambdaType(
+                foldTokensToType(
+                    listOf(token.returnType)
+                ).first(),
+                foldTokensToType(token.arguments)
+            )
+        } else {
+            var nullable = false
+            val generics = if (token is ObjCToken.IdType) {
+                nullable = token.nullable
+                foldTokensToType(token.tokens, classOrInterface)
+            } else if (token is ObjCToken.ObjectType) {
+                nullable = token.nullable
+                foldTokensToType(token.tokens, classOrInterface)
+            } else emptyList()
 
-    val (name, _, genericsPart) = matchResult.destructured
-
-    val generics = if (genericsPart.isNotBlank()) {
-        parseGenerics(genericsPart)
-    } else {
-        emptyList()
+            buildObjectType(token.value, generics, emptyList(), nullable, null)
+        }
     }
+}
 
-    return buildType(
-        name = name,
-        generics = generics,
-        nullable = nullable,
-        classifierType = classOrInterface,
-        members = emptyList(),
-        superType = null
-    )
+fun List<ObjCToken>.filterPrimaryTokens(): List<ObjCToken> {
+    return filter {
+        it is ObjCToken.PrimitiveType
+                || it is ObjCToken.ObjectType
+                || it is ObjCToken.Instance
+                || it is ObjCToken.IdType
+                || it is ObjCToken.Void
+                || it is ObjCToken.LambdaType
+    }
 }

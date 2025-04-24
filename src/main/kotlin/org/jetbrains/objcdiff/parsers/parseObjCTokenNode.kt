@@ -2,56 +2,37 @@ package org.jetbrains.objcdiff.parsers
 
 import org.jetbrains.objcdiff.parsers.ObjCGroupType.*
 
-sealed class ObjCGroupType(
-    val open: Char, val close: Char
-) {
-    data object Curly : ObjCGroupType('{', '}')
-    data object Parent : ObjCGroupType('(', ')')
-    data object Square : ObjCGroupType('[', ']')
-    data object Cone : ObjCGroupType('<', '>')
-}
+fun parseTokenGraph(source: String): List<ObjCTokenNode> {
+    var i = 0
+    fun traverse(): List<ObjCTokenNode> {
 
-data class GroupToken(
-    val name: String,
-    val children: List<GroupToken> = emptyList()
-) {
-    constructor(name: String, child: GroupToken) : this(name, listOf(child))
-}
-
-fun Char.isBreak(): Boolean {
-    return this == ' '
-}
-
-fun parseGroupToken(source: String, pointer: Int = 0): List<GroupToken> {
-
-    var idx = pointer
-
-    fun traverse(): List<GroupToken> {
-
-        val children = mutableListOf<GroupToken>()
+        val children = mutableListOf<ObjCTokenNode>()
         var child = ""
 
-        fun consumeChild(ch: List<GroupToken> = emptyList(), forceConsume: Boolean = false): Boolean {
+        fun consumeChild(ch: List<ObjCTokenNode> = emptyList(), forceConsume: Boolean = false): Boolean {
             if (child.isNotEmpty() || forceConsume) {
-                children.add(GroupToken(child, ch))
+                children.add(ObjCTokenNode(child, ch))
                 child = ""
                 return true
             } else return false
         }
 
-        while (isInRange(source, idx)) {
-            val ch = source[idx++]
+        while (isInRange(source, i)) {
+            val ch = source[i++]
             if (isOpening(ch)) {
-                val chch = traverse()
-                val consumed = consumeChild(chch, true)
+                val traverseResult = traverse()
+                val consumed = consumeChild(traverseResult, true)
                 if (!consumed) {
-                    children.addAll(chch)
+                    children.addAll(traverseResult)
                 }
             } else if (isClosing(ch)) {
                 consumeChild()
                 return children
             } else {
                 if (ch.isBreak()) {
+
+                    if(ch == ',' && source.getOrNull(i) == ' ') i++ // consume child after ", " case
+
                     consumeChild()
                 } else {
                     child += ch
@@ -65,6 +46,26 @@ fun parseGroupToken(source: String, pointer: Int = 0): List<GroupToken> {
     }
 
     return traverse()
+}
+
+data class ObjCTokenNode(
+    val name: String,
+    val children: List<ObjCTokenNode> = emptyList()
+) {
+    constructor(name: String, child: ObjCTokenNode) : this(name, listOf(child))
+}
+
+private sealed class ObjCGroupType(
+    val open: Char, val close: Char
+) {
+    data object Curly : ObjCGroupType('{', '}')
+    data object Parent : ObjCGroupType('(', ')')
+    data object Square : ObjCGroupType('[', ']')
+    data object Cone : ObjCGroupType('<', '>')
+}
+
+private fun Char.isBreak(): Boolean {
+    return this == ' ' || this == ','
 }
 
 private fun isOpening(ch: Char): Boolean {
