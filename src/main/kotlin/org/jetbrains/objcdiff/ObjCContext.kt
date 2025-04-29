@@ -1,8 +1,10 @@
 package org.jetbrains.objcdiff
 
-class DiffContext(
+class ObjCContext(
     val skipRefType: Boolean = false
 ) {
+    var currentLine: String? = null
+
     private val cache = mutableMapOf<String, ObjCType>()
 
     fun buildLambdaType(returnType: ObjCType, arguments: List<ObjCType> = emptyList()): ObjCType.LambdaType {
@@ -20,8 +22,9 @@ class DiffContext(
         nullable: Boolean = false,
         superType: ObjCType? = null,
         classifierType: ClassifierType = ClassifierType.Undefined,
+        swiftName: String? = null,
     ): ObjCType.ObjectType {
-        return makeOrCache(ObjCType.ObjectType(name, generics, members, superType, nullable, classifierType))
+        return makeOrCache(ObjCType.ObjectType(name, generics, members, superType, nullable, classifierType, swiftName))
     }
 
     @Suppress("UNCHECKED_CAST")

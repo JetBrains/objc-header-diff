@@ -2,6 +2,7 @@ package org.jetbrains.objcdiff
 
 import org.jetbrains.objcdiff.swift.SwiftCallPrinter
 import org.jetbrains.objcdiff.swift.SwiftFunction
+import org.jetbrains.objcdiff.swift.asSwiftType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

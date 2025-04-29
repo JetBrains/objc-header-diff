@@ -1,8 +1,7 @@
 package org.jetbrains.objcdiff.reports
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.utils.storeFile
-import org.jetbrains.objcdiff.reports.buildDiffReport
 import java.io.File
 
 /**
@@ -12,7 +11,7 @@ import java.io.File
  * - `actual.h.md` info and classes graph of `actual.h`
  * - `expected.h.md` info and classes graph of `expected.h`
  */
-context(DiffContext)
+context(ObjCContext)
 fun buildReport(actual: File, expected: File) {
 
     val actualReport = buildHeaderReport(actual)

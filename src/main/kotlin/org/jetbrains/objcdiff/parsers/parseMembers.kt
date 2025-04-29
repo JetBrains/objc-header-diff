@@ -1,10 +1,10 @@
 package org.jetbrains.objcdiff.parsers
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.ObjCMember
 import org.jetbrains.objcdiff.ObjCType
 
-context(DiffContext)
+context(ObjCContext)
 fun List<String>.parseMembers(container: ObjCType?): List<ObjCMember> {
     return mapNotNull {
         if (it.startsWith("@required")) return@mapNotNull null

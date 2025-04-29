@@ -1,10 +1,10 @@
 package org.jetbrains.objcdiff.reports
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.MemberEquality
 import org.jetbrains.objcdiff.ObjCType
 
-context(DiffContext)
+context(ObjCContext)
 fun buildDiffReport(expectedReport: HeaderReport, actualReport: HeaderReport): DiffReport {
 
     val expected = (expectedReport.types).associateBy { it.key }.toMutableMap()

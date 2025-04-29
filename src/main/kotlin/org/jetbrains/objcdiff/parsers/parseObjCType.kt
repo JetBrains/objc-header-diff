@@ -1,15 +1,15 @@
 package org.jetbrains.objcdiff.parsers
 
 import org.jetbrains.objcdiff.ClassifierType
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.ObjCType
 
-context(DiffContext)
+context(ObjCContext)
 fun String.parseObjCType(classifierType: ClassifierType = ClassifierType.Undefined): ObjCType {
     return foldTokensToType(parseObjCTokens(this), classifierType).first()
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun foldTokensToType(
     tokens: List<ObjCToken>,
     classOrInterface: ClassifierType = ClassifierType.Undefined

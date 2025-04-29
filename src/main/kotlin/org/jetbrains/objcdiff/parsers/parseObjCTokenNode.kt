@@ -9,9 +9,13 @@ fun parseTokenGraph(source: String): List<ObjCTokenNode> {
         val children = mutableListOf<ObjCTokenNode>()
         var child = ""
 
-        fun consumeChild(ch: List<ObjCTokenNode> = emptyList(), forceConsume: Boolean = false): Boolean {
+        fun consumeChild(
+            ch: List<ObjCTokenNode> = emptyList(),
+            forceConsume: Boolean = false,
+            groupType: ObjCGroupType? = null,
+        ): Boolean {
             if (child.isNotEmpty() || forceConsume) {
-                children.add(ObjCTokenNode(child, ch))
+                children.add(ObjCTokenNode(child, ch, groupType))
                 child = ""
                 return true
             } else return false
@@ -21,19 +25,35 @@ fun parseTokenGraph(source: String): List<ObjCTokenNode> {
             val ch = source[i++]
             if (isOpening(ch)) {
                 val traverseResult = traverse()
-                val consumed = consumeChild(traverseResult, true)
+                val consumed = consumeChild(traverseResult, true, ch.toGroupType())
                 if (!consumed) {
                     children.addAll(traverseResult)
                 }
             } else if (isClosing(ch)) {
-                consumeChild()
+
+                consumeChild(groupType = ch.toGroupType())
                 return children
             } else {
                 if (ch.isBreak()) {
 
-                    if(ch == ',' && source.getOrNull(i) == ' ') i++ // consume child after ", " case
+                    //if(source.getOrNull(i) == '<' || source.substring(i) == "(Extensions)") {
+                    if (false) {
+                        /**
+                         * Case when generic defined after space, so we just skip the space
+                         * ```c
+                         * @protocol DateTimeFormatBuilderWithDate <DateTimeFormatBuilder>
+                         * ```
+                         * Or extension
+                         * ```c
+                         * DatePeriod (Extensions)
+                         * ```
+                         */
+                    } else {
+                        if (ch == ',' && source.getOrNull(i) == ' ') i++ // consume child after ", " case
+                        consumeChild()
+                    }
 
-                    consumeChild()
+
                 } else {
                     child += ch
                 }
@@ -50,18 +70,29 @@ fun parseTokenGraph(source: String): List<ObjCTokenNode> {
 
 data class ObjCTokenNode(
     val name: String,
-    val children: List<ObjCTokenNode> = emptyList()
+    val children: List<ObjCTokenNode> = emptyList(),
+    val groupType: ObjCGroupType? = null
 ) {
-    constructor(name: String, child: ObjCTokenNode) : this(name, listOf(child))
+    constructor(name: String, child: ObjCTokenNode, groupType: ObjCGroupType? = null) : this(
+        name,
+        listOf(child),
+        groupType
+    )
 }
 
-private sealed class ObjCGroupType(
+sealed class ObjCGroupType(
     val open: Char, val close: Char
 ) {
     data object Curly : ObjCGroupType('{', '}')
     data object Parent : ObjCGroupType('(', ')')
     data object Square : ObjCGroupType('[', ']')
     data object Cone : ObjCGroupType('<', '>')
+}
+
+private fun Char.toGroupType(): ObjCGroupType? {
+    val opening = getOpeningOrNull()
+    val closing = getClosingOrNull()
+    return opening ?: closing
 }
 
 private fun Char.isBreak(): Boolean {

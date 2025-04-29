@@ -4,7 +4,7 @@ import org.jetbrains.objcdiff.ClassifierType
 import org.jetbrains.objcdiff.reports.interfacePrefix
 import org.jetbrains.objcdiff.reports.protocolPrefix
 
-fun String.parseObjCTypeHeader(): ObjCTypeHeader {
+fun String.parseObjCTypeHeader(swiftName: String? = null): ObjCTypeHeader {
 
     val classifierType: ClassifierType
 
@@ -19,13 +19,14 @@ fun String.parseObjCTypeHeader(): ObjCTypeHeader {
     val rawMain = raw.substringBefore(":")
     val rawSuperType = if (raw.contains(":")) raw.parseSuperType() else null
 
-    return ObjCTypeHeader(rawMain, rawSuperType, classifierType)
+    return ObjCTypeHeader(rawMain, rawSuperType, classifierType, swiftName)
 }
 
 data class ObjCTypeHeader(
     val rawMain: String,
     val rawSuper: String?,
-    val classifierType: ClassifierType
+    val classifierType: ClassifierType,
+    val swiftName: String? = null,
 ) {
     val key = rawMain
 }

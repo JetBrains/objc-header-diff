@@ -16,7 +16,8 @@ sealed class ObjCType(
         val members: List<ObjCMember> = emptyList(),
         val superType: ObjCType? = null,
         val nullable: Boolean = false,
-        val type: ClassifierType = ClassifierType.Undefined
+        val type: ClassifierType = ClassifierType.Undefined,
+        val swiftName: String? = null
     ) : ObjCType()
 
     data class LambdaType(
@@ -63,14 +64,4 @@ val primitives = setOf(
 enum class ClassifierType {
     Protocol, Interface,
     Undefined // for the cases when it's types comes from dependency
-}
-
-@JvmName("asNullableSwiftType")
-fun ObjCType?.asSwiftType(): SwiftType? {
-    if (this == null) return null
-    return SwiftType(name, this)
-}
-
-fun ObjCType.asSwiftType(): SwiftType {
-    return SwiftType(name, this)
 }

@@ -5,7 +5,7 @@ import kotlin.reflect.KTypeProjection
 
 data class NamespacePrefix(val namespace: String, val prefix: String)
 
-context(DiffContext)
+context(ObjCContext)
 fun List<ObjCType>.toClassDiagramMermaid(namespaces: List<NamespacePrefix> = emptyList()): String {
 
     val sb = StringBuilder()
@@ -75,7 +75,7 @@ object Colors {
     const val OK = "#37a600"
 }
 
-context(DiffContext)
+context(ObjCContext)
 private fun List<ObjCType>.buildClasses(
     sb: StringBuilder,
     references: MutableSet<String>,
@@ -146,7 +146,7 @@ private fun List<ObjCType>.buildClasses(
                 if (member is ObjCMethod) {
                     membersSb.appendLine(
                         " ${withoutPrefix(member.returnTypeName)} ${member.name}(${
-                            member.parameters.joinToString(
+                            member.arguments.joinToString(
                                 ", "
                             ) { withoutPrefix(it.type.name) }
                         })")
@@ -173,7 +173,7 @@ private fun List<ObjCType>.buildClasses(
                     member.returnType,
                     ObjCReferenceType.METHOD_RETURN
                 )
-                member.parameters.forEach { param ->
+                member.arguments.forEach { param ->
                     referenceType(symbolTypeName, param.type, ObjCReferenceType.METHOD_PARAM)
                 }
             } else if (member is ObjCProperty) {

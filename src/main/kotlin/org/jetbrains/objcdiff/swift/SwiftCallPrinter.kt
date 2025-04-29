@@ -1,5 +1,8 @@
 package org.jetbrains.objcdiff.swift
 
+import org.jetbrains.objcdiff.ObjCMethod
+import org.jetbrains.objcdiff.ObjCType.ObjectType
+
 class SwiftCallPrinter {
 
     private val sb = StringBuilder()
@@ -27,6 +30,24 @@ class SwiftCallPrinter {
     fun print(): String {
         return sb.toString()
     }
+}
+
+fun makeSwiftCall(obj: ObjectType): String {
+    val sb = StringBuilder()
+    val name = obj.name
+    val constructors = obj.getConstructors()
+
+    if (constructors.isEmpty()) return ""
+
+    constructors.forEachIndexed { index, c ->
+        sb.append("let a${index} = ${name}()")
+    }
+
+    return sb.toString()
+}
+
+fun ObjectType.getConstructors(): List<ObjCMethod> {
+    return members.filterIsInstance<ObjCMethod>().filter { it.returnType?.name == "instancetype" }
 }
 
 fun createPrimitiveValue(type: SwiftType): String {

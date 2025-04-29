@@ -1,10 +1,10 @@
 package org.jetbrains.objcdiff.parsers
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.ObjCProperty
 import org.jetbrains.objcdiff.ObjCType
 
-context(DiffContext)
+context(ObjCContext)
 fun String.parseProperty(container: ObjCType? = null): ObjCProperty? {
     if (!this.startsWith("@property")) {
         return null

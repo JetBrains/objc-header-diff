@@ -10,7 +10,7 @@ class SearchTests {
 
     @Test
     fun noConnected() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val a = """
             @interface A
             @end
@@ -27,7 +27,7 @@ class SearchTests {
 
     @Test
     fun superConnected() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val a = """
             @interface A
             @end
@@ -45,7 +45,7 @@ class SearchTests {
 
     @Test
     fun multiSuperConnected() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val a = """
             @interface A
             @end
@@ -68,7 +68,7 @@ class SearchTests {
 
     @Test
     fun `basic property dependency`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val a = """
             @interface A
             @end
@@ -87,7 +87,7 @@ class SearchTests {
 
     @Test
     fun `chain property dependency`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val a = """
             @interface A
             @end

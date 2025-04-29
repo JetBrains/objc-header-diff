@@ -1,20 +1,20 @@
 package org.jetbrains.objcdiff.utils
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.ObjCType
 import org.jetbrains.objcdiff.reports.toObjCTypes
 
-context(DiffContext)
-fun String.getFirstType(): ObjCType {
+context(ObjCContext)
+fun String.getFirstObjCType(): ObjCType {
     return trimIndent().toObjCTypes().toList().first()
 }
 
-context(DiffContext)
-fun String.getFirstClassifier(): ObjCType.ObjectType {
+context(ObjCContext)
+fun String.getFirstObjCObject(): ObjCType.ObjectType {
     return trimIndent().toObjCTypes().toList().first() as ObjCType.ObjectType
 }
 
-context(DiffContext)
-fun String.parseClassifiers(): List<ObjCType.ObjectType> {
+context(ObjCContext)
+fun String.parseObjCObjects(): List<ObjCType.ObjectType> {
     return trimIndent().toObjCTypes().toList().map { it as ObjCType.ObjectType }
 }

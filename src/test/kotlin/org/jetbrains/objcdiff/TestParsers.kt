@@ -2,8 +2,8 @@ package org.jetbrains.objcdiff
 
 import org.jetbrains.objcdiff.parsers.*
 import org.jetbrains.objcdiff.reports.buildObjectType
-import org.jetbrains.objcdiff.utils.getFirstClassifier
-import org.jetbrains.objcdiff.utils.parseClassifiers
+import org.jetbrains.objcdiff.utils.getFirstObjCObject
+import org.jetbrains.objcdiff.utils.parseObjCObjects
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
@@ -28,7 +28,7 @@ class TestParsers {
 
     @Test
     fun `test parseMethod`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val decodeInt = "+ (void) decodeInt(int32_t)value".parseMethod()
 
             assertNotNull(decodeInt)
@@ -41,7 +41,7 @@ class TestParsers {
 
     @Test
     fun `test parseProperty`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val property = "@property (class, readonly) int64_t getValue".parseProperty()
             assertNotNull(property)
             assertEquals("getValue", property.name)
@@ -52,7 +52,7 @@ class TestParsers {
     @Test
     @Ignore //verify if the definition of KSerializer is valid
     fun `test complex generics`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val symbolTitle =
                 "@interface BooleanArraySerializer : PrimitiveArraySerializer<Boolean *, KotlinBooleanArray *, BooleanArrayBuilder *> <KSerializer>"
                     .parseObjCTypeHeader()
@@ -69,7 +69,7 @@ class TestParsers {
 
     @Test
     fun `parse type`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val type = "KotlinPair<__covariant A, __covariant B> ".parseObjCType() as ObjCType.ObjectType
             assertEquals("KotlinPair", type.name)
             assertEquals(listOf("A", "B"), type.generics.map { it.name })
@@ -78,7 +78,7 @@ class TestParsers {
 
     @Test
     fun `parse multiple generics`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val type = "A<B, C>".parseObjCType() as ObjCType.ObjectType
             assertEquals("A", type.name)
             assertEquals(listOf("B", "C"), type.generics.map { it.name })
@@ -94,7 +94,7 @@ class TestParsers {
 
     @Test
     fun `parse full type`() {
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val header = "@interface A<T>: B<V>".parseObjCTypeHeader()
             val type = buildObjectType(header)
 
@@ -110,7 +110,7 @@ class TestParsers {
     fun `parse simple header`() {
 
 
-        with(DiffContext()) {
+        with(ObjCContext()) {
             val types = """
             @interface A
             + (void) decode(int32_t)decodeInt
@@ -120,7 +120,7 @@ class TestParsers {
             @interface C: B
             @property (class, readonly) int64 getValue
             @end
-        """.parseClassifiers()
+        """.parseObjCObjects()
 
             assertEquals(3, types.size)
 
@@ -145,8 +145,23 @@ class TestParsers {
     }
 
     @Test
+    fun zzz() {
+    }
+
+    fun foo() {
+        getInt(Any() as Zed)
+    }
+
+    fun getInt(i: Zed) {
+
+    }
+
+    interface Zed
+
+    @Test
     fun `parse kotlin array`() {
-        with(DiffContext()) {
+
+        with(ObjCContext()) {
             """
             @interface KotlinArray<T> : Base
             + (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(Int *))init __attribute__((swift_name("init(size:init:)")));
@@ -157,7 +172,7 @@ class TestParsers {
             - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
             @property (readonly) int32_t size __attribute__((swift_name("size")));
             @end
-        """.getFirstClassifier()
+        """.getFirstObjCObject()
         }
     }
 
@@ -178,5 +193,33 @@ class TestParsers {
             ),
             splitSelectors("arrayWithSize:(int32_t)size init:(T _Nullable (^)(Int *))init")
         )
+    }
+
+    @Test
+    fun `single generic with space`() {
+        with(ObjCContext()) {
+            val type = "DateTimeFormatBuilderWithDate <DateTimeFormatBuilder>".parseObjCType()
+            println(type)
+        }
+    }
+
+    @Test
+    fun `extension type`() {
+        with(ObjCContext()) {
+            val type = "DatePeriod (Extensions)".parseObjCType()
+            println(type)
+        }
+    }
+
+    @Test
+    fun `temp x`() {
+        val source = """
+            - (NSString *)formatToStringValue:(int64_t)value unit_:(NSString *)unit __attribute__((swift_name("formatToString(value:unit_:)")));
+        """.trimIndent()
+
+        with(ObjCContext()) {
+            val type = source.parseMethod()
+            println(type)
+        }
     }
 }

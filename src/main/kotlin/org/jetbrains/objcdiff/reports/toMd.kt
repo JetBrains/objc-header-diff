@@ -1,8 +1,8 @@
 package org.jetbrains.objcdiff.reports
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 
-context(DiffContext)
+context(ObjCContext)
 fun HeaderReport.toMd(): String {
     val sb = StringBuilder()
     sb.appendLine("# Header `$fileName`")
@@ -14,7 +14,7 @@ fun HeaderReport.toMd(): String {
     return sb.toString()
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun DiffReport.toMd(): String {
     val sb = StringBuilder()
     sb.appendLine("# Diff")

@@ -6,7 +6,7 @@ import org.jetbrains.objcdiff.reports.buildReport
 import java.io.File
 
 fun main(args: Array<String>) {
-    with(DiffContext(skipRefType = true)) {
+    with(ObjCContext(skipRefType = true)) {
 
         val (actual, expected) = when {
             args.isEmpty() -> defaultActual to defaultExpected

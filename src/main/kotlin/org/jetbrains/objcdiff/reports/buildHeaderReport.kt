@@ -1,11 +1,8 @@
 package org.jetbrains.objcdiff.reports
 
-import org.jetbrains.objcdiff.DiffContext
+import org.jetbrains.objcdiff.ObjCContext
 import org.jetbrains.objcdiff.ObjCType
-import org.jetbrains.objcdiff.parsers.ObjCTypeHeader
-import org.jetbrains.objcdiff.parsers.parseMembers
-import org.jetbrains.objcdiff.parsers.parseObjCTypeHeader
-import org.jetbrains.objcdiff.parsers.parseObjCType
+import org.jetbrains.objcdiff.parsers.*
 import org.jetbrains.objcdiff.utils.loadFile
 import java.io.File
 
@@ -19,12 +16,12 @@ val startInterface = "$interfacePrefix.*".toRegex()
 val startProtocol = "$protocolPrefix.*".toRegex()
 val end = "@end".toRegex()
 
-context(DiffContext)
+context(ObjCContext)
 fun buildHeaderReport(file: File): HeaderReport {
     return buildHeaderReport(file.name, loadFile(file))
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun buildHeaderReport(fileName: String, source: String): HeaderReport {
     val sequence = source
         .lineSequence()
@@ -38,7 +35,7 @@ fun buildHeaderReport(fileName: String, source: String): HeaderReport {
     )
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun String.collectClassesAndProtocols(): List<ObjCType> {
     return lineSequence().toObjCTypes().toList()
 }
@@ -70,20 +67,26 @@ fun Sequence<String>.skipForwardProtocols(): Sequence<String> = sequence {
     }
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun String.toObjCTypes(): Sequence<ObjCType> {
     return lineSequence().toObjCTypes()
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun Sequence<String>.toObjCTypes() = sequence {
     var take = false
     var header: ObjCTypeHeader? = null
     val rawMembers = mutableListOf<String>()
+    var swiftName: String? = null
     for (str in this@toObjCTypes) {
+        currentLine = str
         when {
+            str.startsWith("__attribute__((swift_name(") -> {
+                swiftName = str.getMethodSwiftAttribute()
+            }
+
             str.matches(startProtocol) || str.matches(startInterface) -> {
-                header = str.parseObjCTypeHeader()
+                header = str.parseObjCTypeHeader(swiftName)
                 take = true
                 rawMembers.clear()
             }
@@ -93,6 +96,7 @@ fun Sequence<String>.toObjCTypes() = sequence {
                 yield(
                     buildObjectType(header ?: error("header types isn't initialised"), rawMembers)
                 )
+                swiftName = null
             }
 
             take -> {
@@ -102,13 +106,15 @@ fun Sequence<String>.toObjCTypes() = sequence {
     }
 }
 
-context(DiffContext)
+context(ObjCContext)
 fun buildObjectType(
     header: ObjCTypeHeader,
-    members: List<String> = emptyList()
+    members: List<String> = emptyList(),
 ): ObjCType.ObjectType {
-    
-    val mainType = header.rawMain.parseObjCType(header.classifierType) as ObjCType.ObjectType
+    //TODO("Parse type with a special function: rawMain=`SharedBase (SharedBaseCopying) <NSCopying>` >>> just drop whats in brackets")
+    //parseTokenGraph(header.rawMain)
+
+    val mainType = header.rawMain.parseMainType().parseObjCType(header.classifierType) as ObjCType.ObjectType
     val superType = header.rawSuper?.parseObjCType(header.classifierType) as? ObjCType.ObjectType
 
     return buildObjectType(
@@ -117,6 +123,18 @@ fun buildObjectType(
         members.parseMembers(mainType),
         mainType.nullable,
         superType,
-        header.classifierType
+        header.classifierType,
+        header.swiftName
     )
+}
+
+fun String.parseMainType(): String {
+    /**
+     * Ignoring categories
+     * ```
+     * SharedBase (SharedBaseCopying) <NSCopying>
+     * ```
+     * Would return `SharedBase`
+     */
+    return parseTokenGraph(this).first().name
 }

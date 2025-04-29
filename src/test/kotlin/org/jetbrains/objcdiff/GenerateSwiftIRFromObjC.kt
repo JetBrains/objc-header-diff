@@ -1,7 +1,7 @@
 package org.jetbrains.objcdiff
 
 import org.jetbrains.objcdiff.swift.asSwiftMethod
-import org.jetbrains.objcdiff.utils.getFirstClassifier
+import org.jetbrains.objcdiff.utils.getFirstObjCObject
 import org.jetbrains.objcdiff.utils.second
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,8 +19,8 @@ class GenerateSwiftIRFromObjC {
             @end
         """
 
-        with(DiffContext()) {
-            val objc = source.getFirstClassifier()
+        with(ObjCContext()) {
+            val objc = source.getFirstObjCObject()
 
 
             (objc.members[0] as ObjCMethod).asSwiftMethod().apply {
